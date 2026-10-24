@@ -14,6 +14,8 @@ Todas as imagens, fontes e ícones são locais. A apresentação não depende de
 
 Repositório: [ivancnogueira/bia-360](https://github.com/ivancnogueira/bia-360), branch `main`.
 
+Endereço do GitHub Pages: [Apresentação BIA e Barone](https://ivancnogueira.github.io/bia-360/). A origem de publicação está configurada como GitHub Actions.
+
 1. O repositório mantém a pasta `dist`, a pasta `.github` e `vercel.json` na raiz.
 2. Use a branch `main`. Para outra branch, ajuste `.github/workflows/pages.yml`.
 3. Em Settings, Pages, escolha GitHub Actions como origem.

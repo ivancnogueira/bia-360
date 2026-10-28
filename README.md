@@ -1,6 +1,21 @@
 # Apresentação BIA e Barone
 
-Apresentação HTML para negociação do lançamento do SaaS beta em 3 de novembro de 2026, durante o BSV. Os Barone são os fundadores do negócio. Clientes embaixadores recebem uma condição comercial de lançamento e ajudam na evolução, sem participação societária.
+Apresentação HTML e dashboard de plano de negócio para o lançamento do SaaS beta em 3 de novembro de 2026, durante o BSV. A premissa societária atual informada é Barone em 80% e Ivan Nogueira em 20% protegidos no simulador. Clientes embaixadores recebem uma condição comercial de lançamento e ajudam na evolução, sem participação societária.
+
+## Dashboard BP, acordo atualizado em 28/10/2026
+
+Abra [o dashboard público](https://ivancnogueira.github.io/bia-360/dashboard/) ou `dist/dashboard/index.html` no servidor local. A apresentação original continua na raiz e identifica como históricas as antigas propostas financeiras. Para as premissas atuais, use o dashboard.
+
+- Evento com 2.000 participantes, 20% de adesão e 400 primeiras mensalidades pagas no cenário inicial.
+- Três planos, preços e mix editáveis; projeções mensais por 60 meses e comparação de 1, 2 e 5 anos.
+- Barone 80%, Ivan 20% fixos; novos sócios diluem proporcionalmente os demais 80%.
+- Dividendos sobre resultado disponível ou coprodução sobre receita própria elegível após checkout, sem acumular os dois automaticamente.
+- Pró-labore inicial de R$1.500 mantido, garantido e editável. Sem setup de R$7.000, antigos 10% extras ou antigos 15% recorrentes no modelo atual.
+- Implementação opcional de R$790, proposta de repasse de 75% após checkout a Ivan, comparável a 70% e 60%. Apoio contratado sai da parcela de Ivan. Venda do serviço não entra por padrão até ativar a premissa.
+- Mercado brasileiro com fontes, custos e equipe, aquisição e churn, GMV separado da receita própria, sensibilidade de valuation e rodada com Ivan em 20%.
+- Alterações são locais ao navegador. Links de cenário, exportação CSV/JSON e impressão em PDF estão disponíveis. Não há backend de contas ou compartilhamento persistente centralizado.
+
+Taxa de 3,89% é uma premissa indicada pelo usuário. A condição pública consultada da Greenn é diferente. Não se configuram pagamentos, contas ou repasses reais nesta página.
 
 ## Abrir e apresentar
 
@@ -40,6 +55,8 @@ O pacote ZIP de deploy inclui `dist`, `.github/workflows/pages.yml`, `vercel.jso
 O conteúdo da página inclui valores de negociação. A configuração `noindex` reduz a indexação, mas não cria senha ou controle de acesso. Escolha o público do endereço antes de compartilhar.
 
 ## Conteúdo e condições
+
+Os percentuais A/B e o cálculo da calculadora original nesta seção documentam a proposta inicial de 24/10/2026, substituída pelo acordo de 28/10/2026 no dashboard. Não aplicar setup, 10% extras ou 15% recorrentes ao cenário atual.
 
 - Preços propostos de lançamento: Barbearia R$199, Escola R$299 e Híbrido R$449 por mês, por 12 meses desde a ativação.
 - Referências propostas para novas adesões posteriores: R$299, R$399 e R$599.

@@ -1,7 +1,7 @@
 (function (scope) {
   'use strict';
   const defaults = {
-    version: 1, horizon: 2, scenario: 'base', payoutMode: 'dividendos', audience: 2000, conversion: 20, collection: 100,
+    version: 2, horizon: 2, scenario: 'base', payoutMode: 'dividendos', audience: 2000, conversion: 20, collection: 100,
     plans: [
       { id: 'barbearia', name: 'Barbearia', beta: 199, regular: 299, weight: 40 },
       { id: 'escola', name: 'Escola', beta: 299, regular: 399, weight: 40 },
@@ -9,6 +9,9 @@
     ],
     gateway: 3.89, gatewayFixed: 0, refunds: 0, tax: 6,
     acquisitions: [40, 70, 100, 140, 180], churn: 2.5, betaMonths: 12, betaReprice: true,
+    otherAcquisitions: [0, 0, 0, 0, 0], otherCac: 180,
+    workshopEnabled: true, workshopInterval: 60, workshopFirstDays: 60, workshopAttendees: 200,
+    workshopConversion: 10, workshopNewAudience: 100, workshopCollection: 100, workshopCost: 0,
     prolabore: 1500, distribute: 50,
     variableCost: 32, onboarding: 35, infra: 1800, overhead: 1500,
     devMinimum: 1, devCapacity: 1500, devCost: 10000, costInflation: 5, settlementDays: 30,
@@ -25,10 +28,11 @@
       { id: 'ivan', name: 'Ivan Nogueira', role: 'Founder', share: 20, locked: true }
     ]
   };
+  const churnBenchmark=Object.freeze({annual:16.25,monthly:100*(1-Math.pow(1-0.1625,1/12)),year:2025,source:'https://www.lightercapital.com/blog/2025-b2b-saas-startup-benchmarks'});
   const clone = value => JSON.parse(JSON.stringify(value));
   const money = value => Math.round((value + Number.EPSILON) * 100) / 100;
-  const percentFields = new Set(['conversion','collection','gateway','refunds','tax','churn','distribute','marketFit','payingFit','marketplaceAdoption','marketplaceTake','eventTake','visionAdoption','implementationRate','implementationShare','riskDiscount','costInflation']);
-  const limits = { audience: [0, 10000000], horizon: [1, 5], betaMonths: [1, 60], supportCapacity: [1, 1000000], devCapacity: [1, 1000000], eventFrequency: [0, 12], universe: [0, 100000000], marketplaceStart: [1, 61], eventStart: [1, 61], visionStart: [1, 61], settlementDays: [0,90], eventTickets: [0,1000000], devMinimum: [0,100], marketplaceOrders: [0,100], multipleLow: [0,30], multipleBase: [0,30], multipleHigh: [0,30] };
+  const percentFields = new Set(['conversion','collection','gateway','refunds','tax','churn','distribute','marketFit','payingFit','marketplaceAdoption','marketplaceTake','eventTake','visionAdoption','implementationRate','implementationShare','riskDiscount','costInflation','workshopConversion','workshopNewAudience','workshopCollection']);
+  const limits = { audience: [0, 10000000], horizon: [1, 5], betaMonths: [1, 60], supportCapacity: [1, 1000000], devCapacity: [1, 1000000], eventFrequency: [0, 12], universe: [0, 100000000], marketplaceStart: [1, 61], eventStart: [1, 61], visionStart: [1, 61], settlementDays: [0,90], eventTickets: [0,1000000], devMinimum: [0,100], marketplaceOrders: [0,100], multipleLow: [0,30], multipleBase: [0,30], multipleHigh: [0,30], workshopInterval: [7,730], workshopFirstDays: [1,3660], workshopAttendees: [0,1000000] };
   function normalize(input = {}) {
     const state = clone(defaults);
     for (const [key, fallback] of Object.entries(defaults)) {
@@ -41,11 +45,13 @@
     state.horizon = [1,2,5].includes(state.horizon) ? state.horizon : 2;
     state.audience = Math.round(state.audience);
     state.betaMonths = Math.round(state.betaMonths);
-    for (const key of ['marketplaceStart','eventStart','visionStart','eventTickets','devMinimum']) state[key] = Math.round(state[key]);
+    for (const key of ['marketplaceStart','eventStart','visionStart','eventTickets','devMinimum','workshopInterval','workshopFirstDays','workshopAttendees']) state[key] = Math.round(state[key]);
+    state.version=2;
     state.eventFrequency = [0,1,2,3,4,6,12].includes(state.eventFrequency) ? state.eventFrequency : 1;
     state.scenario = ['base','conservador','expansao','personalizado'].includes(input.scenario) ? input.scenario : 'base';
     state.payoutMode = input.payoutMode === 'coproducao' ? 'coproducao' : 'dividendos';
     state.acquisitions = defaults.acquisitions.map((fallback, i) => Math.max(0, Math.min(1000000, Number.isFinite(Number(input.acquisitions?.[i])) ? Number(input.acquisitions[i]) : fallback)));
+    state.otherAcquisitions = defaults.otherAcquisitions.map((fallback, i) => Math.max(0, Math.min(1000000, Number.isFinite(Number(input.otherAcquisitions?.[i])) ? Number(input.otherAcquisitions[i]) : fallback)));
     state.plans = defaults.plans.map((fallback, i) => {
       const entry = input.plans?.[i] || {};
       const valid = (key, max) => Math.max(0, Math.min(max, Number.isFinite(Number(entry[key])) ? Number(entry[key]) : fallback[key]));
@@ -110,6 +116,16 @@
     result.push({id:'investor',name:'Novo investidor',role:'Sócio',share:investor,locked:false});
     return {valid:true,preMoney,postMoney:preMoney+investment,investment,investor,partners:result};
   }
+  function workshopSchedule(state) {
+    const s=normalize(state),months=Array.from({length:60},()=>[]);
+    if(!s.workshopEnabled)return months;
+    const launch=Date.UTC(2026,10,3),end=Date.UTC(2031,10,1),day=86400000;
+    for(let offset=s.workshopFirstDays;launch+offset*day<end;offset+=s.workshopInterval){
+      const date=new Date(launch+offset*day),index=(date.getUTCFullYear()-2026)*12+date.getUTCMonth()-10;
+      if(index>=0&&index<60)months[index].push(date.toISOString().slice(0,10));
+    }
+    return months;
+  }
   function calculate(input, compare = true) {
     const s=normalize(input);
     const weights=s.plans.map(p=>p.weight), sum=weights.reduce((a,b)=>a+b,0);
@@ -121,20 +137,32 @@
     const launchGross=counts.reduce((v,n,i)=>v+n*s.plans[i].beta,0);
     const initialArpu=paid>0?launchGross/paid:betaArpu;
     const sam=Math.floor(s.universe*s.marketFit/100*s.payingFit/100);
+    const workshopDates=workshopSchedule(s);
+    const workshopEligible=Math.floor(s.workshopAttendees*s.workshopNewAudience/100);
+    const workshopSignups=Math.floor(workshopEligible*s.workshopConversion/100);
+    const workshopPaid=Math.floor(workshopSignups*s.workshopCollection/100);
     const timeline=[];
     let beta=paid, regular=0, cash=s.initialCash, cumulativeResult=0, cumulativeDividends=0, minCash=cash;
+    let socialActive=0,otherActive=0,workshopActive=0;
     const partnerTotals=Object.fromEntries(s.partners.map(p=>[p.id,0]));
     for(let month=1;month<=60;month++) {
       const year=Math.ceil(month/12);
       const inflation=Math.pow(1+s.costInflation/100,year-1);
       const lost=month===1?0:(beta+regular)*s.churn/100;
-      if(month>1){beta*=1-s.churn/100;regular*=1-s.churn/100;}
-      const requested=month===1?0:s.acquisitions[year-1];
-      const newClients=month===1?paid:Math.min(requested,Math.max(0,sam-beta-regular));
-      if(month>1) regular+=newClients;
+      if(month>1){const retained=1-s.churn/100;beta*=retained;regular*=retained;socialActive*=retained;otherActive*=retained;workshopActive*=retained;}
+      const workshops=workshopDates[month-1].length;
+      const requestedSocial=month===1?0:s.acquisitions[year-1];
+      const requestedOther=month===1?0:s.otherAcquisitions[year-1];
+      const requestedWorkshop=workshops*workshopPaid;
+      const requested=requestedSocial+requestedOther+requestedWorkshop;
+      const accepted=requested>0?Math.min(1,Math.max(0,sam-beta-regular)/requested):0;
+      const socialNew=requestedSocial*accepted,otherNew=requestedOther*accepted,workshopNew=requestedWorkshop*accepted;
+      const newClients=(month===1?paid:0)+socialNew+otherNew+workshopNew;
+      regular+=socialNew+otherNew+workshopNew;
+      socialActive+=socialNew;otherActive+=otherNew;workshopActive+=workshopNew;
       const clients=beta+regular;
       const betaPrice=month<=s.betaMonths || !s.betaReprice ? initialArpu : regularArpu;
-      const grossSaas=month===1?launchGross:beta*betaPrice+regular*regularArpu;
+      const grossSaas=month===1?launchGross+regular*regularArpu:beta*betaPrice+regular*regularArpu;
       const visionBuyers=month>=s.visionStart && s.visionPrice>0?clients*s.visionAdoption/100:0;
       const visionRevenue=visionBuyers*s.visionPrice;
       const mrr=grossSaas+visionRevenue;
@@ -161,7 +189,8 @@
       const fixed=s.prolabore+(s.infra+s.overhead+support*s.supportCost+developers*s.devCost)*inflation;
       const variable=(clients*s.variableCost+visionBuyers*s.visionCost)*inflation;
       const onboarding=newClients*s.onboarding*inflation;
-      const marketing=month===1?s.launchMarketing:newClients*s.cac*inflation;
+      const workshopCost=workshops*s.workshopCost*inflation;
+      const marketing=(month===1?s.launchMarketing:0)+(socialNew*s.cac+otherNew*s.otherCac)*inflation+workshopCost;
       const eligibleSplit=Math.max(0,mrr-refunds-feeSaas+(s.splitOtherRevenue?marketplaceRevenue+eventRevenue-feeMarketplace-feeEvent:0));
       const producer=s.partners.find(p=>p.id==='barone');
       const coproduction=s.payoutMode==='coproducao'?eligibleSplit*(100-producer.share)/100:0;
@@ -179,13 +208,13 @@
       allocations.forEach(p=>{partnerTotals[p.id]+=s.payoutMode==='coproducao'?p.split:p.dividends;});
       const recurringSplit=s.payoutMode==='coproducao'?Math.max(0,mrr-refunds-feeSaas)*(100-producer.share)/100:0;
       const contribution=mrr-refunds-feeSaas-(mrr-refunds)*s.tax/100-variable-recurringSplit;
-      timeline.push({month,year,clients,newClients,lost,beta,regular,mrr,arr:mrr*12,grossSaas,visionRevenue,marketplaceGmv,marketplaceRevenue,eventGmv,eventRevenue,implementations,implementationRevenue,implementationTransfer,feeImplementation,refunds,revenue,gateway,feeSaas,taxes,support,developers,fixed,variable,onboarding,marketing,coproduction,eligibleSplit,implementationCost,expenses,result,dividends,cash,cumulativeResult,allocations,contribution,contributionPerClient:clients>0?contribution/clients:0});
+      timeline.push({month,year,clients,newClients,lost,beta,regular,socialNew,otherNew,workshopNew,socialActive,otherActive,workshopActive,workshops,workshopDates:workshopDates[month-1],workshopCost,mrr,arr:mrr*12,grossSaas,visionRevenue,marketplaceGmv,marketplaceRevenue,eventGmv,eventRevenue,implementations,implementationRevenue,implementationTransfer,feeImplementation,refunds,revenue,gateway,feeSaas,taxes,support,developers,fixed,variable,onboarding,marketing,coproduction,eligibleSplit,implementationCost,expenses,result,dividends,cash,cumulativeResult,allocations,contribution,contributionPerClient:clients>0?contribution/clients:0});
     }
     const years=[1,2,3,4,5].map(year=>{
       const rows=timeline.slice((year-1)*12,year*12);
       const last=rows[11];
       const sumKey=key=>rows.reduce((v,r)=>v+r[key],0);
-      return {year,clients:last.clients,mrr:last.mrr,arr:last.arr,cash:last.cash,revenue:sumKey('revenue'),result:sumKey('result'),dividends:sumKey('dividends'),gateway:sumKey('gateway'),taxes:sumKey('taxes'),coproduction:sumKey('coproduction'),marketplaceGmv:sumKey('marketplaceGmv'),marketplaceRevenue:sumKey('marketplaceRevenue'),eventGmv:sumKey('eventGmv'),eventRevenue:sumKey('eventRevenue'),implementationRevenue:sumKey('implementationRevenue'),implementationTransfer:sumKey('implementationTransfer'),implementationCost:sumKey('implementationCost'),marketing:sumKey('marketing'),newClients:sumKey('newClients'),support:last.support,developers:last.developers,allocations:s.partners.map(p=>({...p,dividends:rows.reduce((v,r)=>v+(r.allocations.find(a=>a.id===p.id)?.dividends||0),0),split:rows.reduce((v,r)=>v+(r.allocations.find(a=>a.id===p.id)?.split||0),0),implementation:rows.reduce((v,r)=>v+(r.allocations.find(a=>a.id===p.id)?.implementation||0),0)}))};
+      return {year,clients:last.clients,mrr:last.mrr,arr:last.arr,cash:last.cash,revenue:sumKey('revenue'),result:sumKey('result'),dividends:sumKey('dividends'),gateway:sumKey('gateway'),taxes:sumKey('taxes'),coproduction:sumKey('coproduction'),marketplaceGmv:sumKey('marketplaceGmv'),marketplaceRevenue:sumKey('marketplaceRevenue'),eventGmv:sumKey('eventGmv'),eventRevenue:sumKey('eventRevenue'),implementationRevenue:sumKey('implementationRevenue'),implementationTransfer:sumKey('implementationTransfer'),implementationCost:sumKey('implementationCost'),marketing:sumKey('marketing'),newClients:sumKey('newClients'),socialNew:sumKey('socialNew'),otherNew:sumKey('otherNew'),workshopNew:sumKey('workshopNew'),workshops:sumKey('workshops'),workshopCost:sumKey('workshopCost'),socialActive:last.socialActive,otherActive:last.otherActive,workshopActive:last.workshopActive,support:last.support,developers:last.developers,allocations:s.partners.map(p=>({...p,dividends:rows.reduce((v,r)=>v+(r.allocations.find(a=>a.id===p.id)?.dividends||0),0),split:rows.reduce((v,r)=>v+(r.allocations.find(a=>a.id===p.id)?.split||0),0),implementation:rows.reduce((v,r)=>v+(r.allocations.find(a=>a.id===p.id)?.implementation||0),0)}))};
     });
     const selected=years[s.horizon-1];
     const last=timeline[s.horizon*12-1];
@@ -206,6 +235,7 @@
     if(s.eventTake<s.gateway && s.feeOnGmv) riskWarnings.push('A comissão dos ingressos não cobre a taxa percentual do checkout sobre a bilheteria.');
     const requiredCapital=Math.max(0,-minCash);
     const output={state:s,signups,paid,counts,betaArpu:initialArpu,regularArpu,sam,launchGross,launchFee,launchNet,launch,timeline,years,selected,valuations,partnerTotals,requiredCapital,riskWarnings,
+      workshops:{eligible:workshopEligible,signups:workshopSignups,paidPerEdition:workshopPaid,mrrPerEdition:workshopPaid*regularArpu,dates:workshopDates.flat(),editionsInHorizon:timeline.slice(0,s.horizon*12).reduce((v,row)=>v+row.workshops,0),newInHorizon:timeline.slice(0,s.horizon*12).reduce((v,row)=>v+row.workshopNew,0)},
       launchIvan:(s.payoutMode==='coproducao'?ivan.split:ivan.dividends)+s.prolabore+launch.implementationTransfer,
       retention12:Math.pow(1-s.churn/100,12)*100,
       ltv:s.churn>0 && last.contributionPerClient>0?last.contributionPerClient/(s.churn/100):null,
@@ -222,7 +252,7 @@
     }
     return output;
   }
-  const api={defaults:()=>clone(defaults),normalize,calculate,split,resizePartner,addPartner,removePartner,round,money};
+  const api={defaults:()=>clone(defaults),normalize,calculate,split,resizePartner,addPartner,removePartner,round,money,workshopSchedule,churnBenchmark};
   if(typeof module!=='undefined' && module.exports) module.exports=api;
   else scope.BiaBP=api;
 })(typeof window!=='undefined'?window:globalThis);

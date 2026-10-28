@@ -8,10 +8,12 @@ Abra [o dashboard público](https://ivancnogueira.github.io/bia-360/dashboard/) 
 
 - Evento com 2.000 participantes, 20% de adesão e 400 primeiras mensalidades pagas no cenário inicial.
 - Três planos, preços e mix editáveis; projeções mensais por 60 meses e comparação de 1, 2 e 5 anos.
+- Workshops locais a cada 60 dias: 200 participantes, 10% de conversão, elegibilidade, pagamento e orçamento editáveis. Redes sociais e outros canais têm metas separadas.
+- Benchmark de churn Lighter Capital 2025: 16,25% anual de clientes, aproximadamente 1,47% mensal equivalente. A hipótese base de 2,5% mensal é independente e editável.
 - Barone 80%, Ivan 20% fixos; novos sócios diluem proporcionalmente os demais 80%.
 - Dividendos sobre resultado disponível ou coprodução sobre receita própria elegível após checkout, sem acumular os dois automaticamente.
 - Pró-labore inicial de R$1.500 mantido, garantido e editável. Sem setup de R$7.000, antigos 10% extras ou antigos 15% recorrentes no modelo atual.
-- Implementação opcional de R$790, proposta de repasse de 75% após checkout a Ivan, comparável a 70% e 60%. Apoio contratado sai da parcela de Ivan. Venda do serviço não entra por padrão até ativar a premissa.
+- Implementação opcional de R$790, proposta de repasse de 75% após checkout a Ivan, com cenários de 60%, 75% e 80%. Apoio contratado sai da parcela de Ivan. Venda do serviço não entra por padrão até ativar a premissa.
 - Mercado brasileiro com fontes, custos e equipe, aquisição e churn, GMV separado da receita própria, sensibilidade de valuation e rodada com Ivan em 20%.
 - Alterações são locais ao navegador. Links de cenário, exportação CSV/JSON e impressão em PDF estão disponíveis. Não há backend de contas ou compartilhamento persistente centralizado.
 

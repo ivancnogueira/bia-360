@@ -39,7 +39,7 @@
     }else input.type='number';
     input.min=options.min??0; input.max=options.max??1000000000; input.step=options.step??1;
     input.inputMode=options.step && options.step<1?'decimal':'numeric';
-    if(options.arrayIndex!==undefined){input.dataset.arrayIndex=options.arrayIndex;input.id='acquisition-'+options.arrayIndex;}
+    if(options.arrayIndex!==undefined){input.dataset.arrayIndex=options.arrayIndex;input.dataset.arrayKey=options.arrayKey||'acquisitions';input.id=(options.arrayKey==='otherAcquisitions'?'other-acquisition-':'acquisition-')+options.arrayIndex;}
     else if(options.planIndex!==undefined){input.dataset.planIndex=options.planIndex;input.dataset.planKey=key;input.id='plan-'+options.planIndex+'-'+key;}
     else{input.dataset.field=key;input.id='field-'+key;}
     wrapper.htmlFor=input.id;
@@ -63,7 +63,17 @@
       ['refunds','Reembolsos previstos',percent],['tax','Provisão tributária', {...percent,help:'Hipótese da operação, confirme o regime aplicável.'}]
     ],
     'retention-controls':[
-      ['churn','Cancelamento mensal',{...percent,step:.1}],['distribute','Resultado disponível a distribuir',{...percent,help:'Só no modo dividendos. O restante fica no negócio.'}]
+      ['churn','Cancelamento mensal de clientes',{...percent,step:.01}],['distribute','Resultado disponível a distribuir',{...percent,help:'Só no modo dividendos. O restante fica no negócio.'}]
+    ],
+    'workshop-controls':[
+      ['workshopInterval','Intervalo entre workshops',{suffix:'dias',min:7,max:730}],
+      ['workshopFirstDays','Primeiro após o BSV',{suffix:'dias',min:1,max:3660}],
+      ['workshopAttendees','Público médio por edição',{suffix:'pessoas',max:1000000}],
+      ['workshopConversion','Conversão em assinatura',percent],
+      ['workshopNewAudience','Público que ainda não é cliente',{...percent,help:'Desconte clientes e pessoas já convertidas em outro canal.'}],
+      ['workshopCollection','Adesões com pagamento',percent],
+      ['workshopCost','Custo por edição alocado à BIA',{...cash,help:'Zero: orçamento ainda não informado, não custo comprovadamente nulo.'}],
+      ['otherCac','CAC dos outros canais',cash]
     ],
     'cost-controls':[
       ['prolabore','Pró-labore mensal de Ivan',{...cash,help:'Garantido mesmo sem vendas; separado da participação.'}],
@@ -71,7 +81,7 @@
       ['overhead','Administrativo / mês',cash],['devMinimum','Equipe dev mínima',{suffix:'pessoas',max:100}],
       ['devCost','Custo por dev / mês',cash],['devCapacity','Contas por profissional dev',{suffix:'contas',min:1}],
       ['supportCost','Custo por suporte / mês',cash],['supportCapacity','Contas por suporte',{suffix:'contas',min:1}],
-      ['cac','Aquisição por novo cliente',cash],['launchMarketing','Divulgação alocada ao lançamento',cash],
+      ['cac','CAC por nova conta de redes sociais',cash],['launchMarketing','Divulgação alocada ao lançamento',cash],
       ['costInflation','Reajuste anual dos custos',{...percent,help:'Não reajusta automaticamente o pró-labore.'}],
       ['settlementDays','Prazo de repasse estimado',{suffix:'dias',max:90,help:'Reserva de giro; não muda o mês econômico.'}],
       ['initialCash','Caixa inicial disponível',cash]
@@ -108,7 +118,10 @@
     ]
   };
   for(const [id,fields]of Object.entries(schemas))fields.forEach(args=>$(id).append(makeField(...args)));
-  for(let i=0;i<5;i++)$('acquisition-controls').append(makeField('', 'Ano '+(i+1),{arrayIndex:i,suffix:'clientes',help:'novos / mês'}));
+  for(let i=0;i<5;i++){
+    $('acquisition-controls').append(makeField('', 'Ano '+(i+1),{arrayIndex:i,suffix:'clientes',help:'novos / mês'}));
+    $('other-acquisition-controls').append(makeField('', 'Ano '+(i+1),{arrayIndex:i,arrayKey:'otherAcquisitions',suffix:'clientes',help:'novos / mês'}));
+  }
   state.plans.forEach((plan,i)=>{
     const row=el('div','plan-row'),name=el('div','plan-name');
     name.append(el('i'),el('span','',plan.name)); const counter=el('small','count');counter.id='plan-count-'+i;name.lastChild.append(counter);row.append(name);
@@ -121,7 +134,7 @@
       if(input.type==='checkbox')input.checked=Boolean(value);
       else if(doc.activeElement!==input)input.value=value;
     });
-    doc.querySelectorAll('[data-array-index]').forEach(input=>{if(doc.activeElement!==input)input.value=state.acquisitions[Number(input.dataset.arrayIndex)];});
+    doc.querySelectorAll('[data-array-index]').forEach(input=>{if(doc.activeElement!==input)input.value=state[input.dataset.arrayKey||'acquisitions'][Number(input.dataset.arrayIndex)];});
     doc.querySelectorAll('[data-plan-index]').forEach(input=>{if(doc.activeElement!==input)input.value=state.plans[Number(input.dataset.planIndex)][input.dataset.planKey];});
     $('scenario').value=state.scenario;
     doc.querySelectorAll('[data-horizon]').forEach(button=>button.setAttribute('aria-pressed',String(Number(button.dataset.horizon)===state.horizon)));
@@ -135,6 +148,7 @@
     set('launch-signups',count(r.signups));set('launch-paid',count(r.paid));set('launch-ticket',exact(r.betaArpu));
     state.plans.forEach((p,i)=>set('plan-count-'+i,count(r.counts[i])+' assinaturas · '+pct(p.weight/state.plans.reduce((a,p)=>a+p.weight,0)*100)));
     const rows=[['Primeiras mensalidades',r.launchGross,'income']];
+    if(launch.grossSaas>r.launchGross)rows.push(['Outras assinaturas no primeiro mês',launch.grossSaas-r.launchGross,'income']);
     if(launch.implementationRevenue>0)rows.push(['Serviços de implementação',launch.implementationRevenue,'income']);
     rows.push(['Checkout de todas as receitas',-launch.gateway,''],['Provisão tributária',-launch.taxes,''],['Pró-labore de Ivan',-state.prolabore,''],['Equipe, infraestrutura e administrativo',-(launch.fixed-state.prolabore),''],['IA, uso e ativação',-(launch.variable+launch.onboarding),'']);
     if(launch.marketing>0)rows.push(['Divulgação do lançamento',-launch.marketing,'']);
@@ -162,6 +176,7 @@
       ['Caixa retido após distribuição',exact(div.launch.cash),exact(cop.launch.cash)]
     ];values.forEach(row=>tableRow(compare,row.slice(0,3),row[3]));
     const perFee=state.implementationPrice*state.gateway/100+state.gatewayFixed;
+    set('implementation-heading','Implementação assistida: '+pct(state.implementationShare)+' para quem entrega');
     const afterCheckout=Math.max(0,state.implementationPrice-perFee),transfer=afterCheckout*state.implementationShare/100;
     const target=$('implementation-results');target.replaceChildren();
     [['Repasse por entrega a Ivan',exact(transfer)],['Depois do apoio contratado',exact(transfer-state.implementationCost)],['Parcela da operação, antes de tributos',exact(afterCheckout-transfer)],['Serviços simulados no lançamento',state.implementationEnabled?count(launch.implementations):'Não incluídos']].forEach(([label,value])=>{const item=el('div');item.append(el('span','',label),el('strong','',value));target.append(item);});
@@ -187,10 +202,16 @@
     metric(unit,'Prazo de retorno do CAC',r.cacPayback===null?'Não estimado':decimal.format(r.cacPayback)+' meses','Aquisição dividida pela contribuição mensal.');
     metric(unit,'Equilíbrio com a estrutura do período',r.breakEven===null?'Não atingível':count(r.breakEven)+' contas');
     metric(unit,'Reserva para o prazo de repasse',currency(r.settlementReserve),'Estimativa inicial de giro para '+count(state.settlementDays)+' dias.');
+    unit.append(el('h4','unit-source-heading','Origem das contas ativas, após cancelamentos'));
+    metric(unit,'BSV de lançamento',count(last.beta)+' contas');
+    metric(unit,'Redes sociais',count(last.socialActive)+' contas');
+    metric(unit,'Outros canais',count(last.otherActive)+' contas');
+    metric(unit,'Workshops locais',count(last.workshopActive)+' contas');
     const yearTable=$('year-table');yearTable.replaceChildren();
     const periods=[r.years[0],r.years[1],r.years[4]];
     const row=(label,key,format=currency)=>tableRow(yearTable,[label,...periods.map(y=>format(y[key]))]);
     row('Clientes ativos no fim do ano','clients',count);row('MRR de software no fim do ano','mrr');row('ARR de software, MRR × 12','arr');row('Receita própria do ano','revenue');row('Resultado da operação no ano','result');row('Caixa acumulado retido','cash');
+    row('Novos clientes dos workshops no ano','workshopNew',count);
     tableRow(yearTable,['Ivan: '+(isSplit?'split':'dividendos')+' do ano',...periods.map(y=>currency(y.allocations.find(p=>p.id==='ivan')[isSplit?'split':'dividends']))]);
     tableRow(yearTable,['Pró-labore de Ivan no ano',...periods.map(()=>currency(state.prolabore*12))]);
     tableRow(yearTable,['Ivan: implementação no ano',...periods.map(y=>currency(y.implementationTransfer))]);
@@ -201,6 +222,22 @@
     }
     tableRow(yearTable,['Operação: resultado no cenário dividendos',...[0,1,4].map(index=>currency(dividendScenario.years[index].result))]);
     tableRow(yearTable,['Operação: resultado no cenário coprodução',...[0,1,4].map(index=>currency(splitScenario.years[index].result))]);
+  }
+  function renderAcquisition(r){
+    const summary=$('workshop-summary');summary.replaceChildren();
+    const values=[['Pagantes potenciais por edição',state.workshopEnabled?count(r.workshops.paidPerEdition):'Desativado'],['Novos dos workshops no primeiro ano',count(r.years[0].workshopNew)],['Edições no horizonte de '+state.horizon+' anos',count(r.workshops.editionsInHorizon)],['MRR potencial por edição, antes do churn',state.workshopEnabled?currency(r.workshops.mrrPerEdition):currency(0)]];
+    values.forEach(([label,value])=>{const item=el('div');item.append(el('span','',label),el('strong','',value));summary.append(item);});
+    const calendar=$('workshop-calendar');calendar.replaceChildren();
+    const formatter=new Intl.DateTimeFormat('pt-BR',{day:'2-digit',month:'short',year:'numeric',timeZone:'UTC'});
+    if(r.workshops.dates.length)r.workshops.dates.slice(0,6).forEach(date=>calendar.append(el('span','date-chip',formatter.format(new Date(date+'T00:00:00Z')))));
+    else calendar.append(el('span','small-muted','Nenhum workshop previsto no horizonte de 60 meses.'));
+    const table=$('channel-acquisition-table');table.replaceChildren();const periods=[r.years[0],r.years[1],r.years[4]];
+    tableRow(table,['BSV de lançamento',count(r.paid),'0','0']);
+    for(const [label,key]of [['Redes sociais','socialNew'],['Outros canais','otherNew'],['Workshops locais','workshopNew'],['Total de novos clientes no ano','newClients']])tableRow(table,[label,...periods.map(y=>count(y[key]))]);
+    tableRow(table,['Edições de workshops no ano',...periods.map(y=>count(y.workshops))]);
+    tableRow(table,['Custo dos workshops alocado à BIA',...periods.map(y=>currency(y.workshopCost))]);
+    set('churn-monthly-equivalent','aproximadamente '+pct(BP.churnBenchmark.monthly)+' ao mês');
+    set('churn-current-rate',pct(state.churn)+' ao mês');set('churn-current-annual',pct(100-r.retention12));
   }
   function renderChart(r){
     const root=$('forecast-chart');root.replaceChildren();
@@ -285,7 +322,7 @@
   }
   function render(){
     try{current=BP.calculate(state);}catch(error){toast(error.message||'Revise as premissas informadas.');return;}
-    state=current.state;syncControls();renderSummary(current);renderLaunch(current);renderPartners(current);renderMarket(current);renderValuation(current);renderRevenue(current);renderChart(current);persist();
+    state=current.state;syncControls();renderSummary(current);renderLaunch(current);renderAcquisition(current);renderPartners(current);renderMarket(current);renderValuation(current);renderRevenue(current);renderChart(current);persist();
   }
   doc.addEventListener('input',event=>{
     const input=event.target;
@@ -294,7 +331,7 @@
     if(input.dataset.partnerShare){if(!Number.isFinite(input.valueAsNumber))return;state.partners=BP.resizePartner(state.partners,input.dataset.partnerShare,input.valueAsNumber);render();return;}
     if(input.dataset.partnerName){const partner=state.partners.find(p=>p.id===input.dataset.partnerName);if(partner&&!partner.locked){partner.name=input.value.slice(0,60);persist();}return;}
     if(input.dataset.field){if(input.type==='checkbox')state[input.dataset.field]=input.checked;else{const numeric=input.tagName==='SELECT'?Number(input.value):input.valueAsNumber;if(!Number.isFinite(numeric))return;state[input.dataset.field]=numeric;}state.scenario='personalizado';render();}
-    else if(input.dataset.arrayIndex!==undefined){if(!Number.isFinite(input.valueAsNumber))return;state.acquisitions[Number(input.dataset.arrayIndex)]=input.valueAsNumber;state.scenario='personalizado';render();}
+    else if(input.dataset.arrayIndex!==undefined){if(!Number.isFinite(input.valueAsNumber))return;state[input.dataset.arrayKey||'acquisitions'][Number(input.dataset.arrayIndex)]=input.valueAsNumber;state.scenario='personalizado';render();}
     else if(input.dataset.planIndex!==undefined){if(!Number.isFinite(input.valueAsNumber))return;state.plans[Number(input.dataset.planIndex)][input.dataset.planKey]=input.valueAsNumber;state.scenario='personalizado';render();}
   });
   doc.addEventListener('change',event=>{if(event.target.dataset.partnerName)render();});
@@ -312,8 +349,9 @@
     if(name==='base'){state.acquisitions=[40,70,100,140,180];state.churn=2.5;}
     else if(name==='conservador'){state.acquisitions=[20,35,50,70,90];state.churn=4;}
     else if(name==='expansao'){state.acquisitions=[60,105,150,210,270];state.churn=1.5;}
-    render();toast('Aquisição e churn atualizados. As demais premissas foram preservadas.');
+    render();toast('Metas de redes sociais e churn atualizados. Workshops e outros canais foram preservados.');
   });
+  $('churn-benchmark-button').addEventListener('click',()=>{state.churn=Math.round(BP.churnBenchmark.monthly*100)/100;state.scenario='personalizado';render();toast('Referência internacional anual convertida para aproximadamente 1,47% ao mês. Não é uma medição da BIA.');});
   $('add-partner').addEventListener('click',()=>{
     const existing=state.partners.length-2,name=existing<3?'Sócio '+['X','Y','Z'][existing]:'Sócio '+(existing+1);
     state.partners=BP.addPartner(state.partners,name,5);render();toast('Novo sócio com 5%. Os demais foram ajustados; Ivan segue com 20%.');
@@ -326,11 +364,11 @@
   function exportFile(type){
     if(type==='pdf'){window.print();return;}
     if(type==='json'){download('bia-bp-premissas.json',JSON.stringify(state,null,2),'application/json;charset=utf-8');return;}
-    const headers=['Mes','Periodo','Modelo','Clientes ativos','Novos clientes','MRR software','Receita propria','GMV marketplace','Receita marketplace','Bilheteria BSV','Receita ingressos','Receita implementacao','Repasse implementacao Ivan','Custo apoio Ivan','Checkout','Provisao tributos','Custos fixos','Custos variaveis','Onboarding','Marketing','Split coprodutores','Resultado operacao','Dividendos','Caixa retido','Prolabore Ivan'];
+    const headers=['Mes','Periodo','Modelo','Clientes ativos','Novos clientes','MRR software','Receita propria','GMV marketplace','Receita marketplace','Bilheteria BSV','Receita ingressos','Receita implementacao','Repasse implementacao Ivan','Custo apoio Ivan','Checkout','Provisao tributos','Custos fixos','Custos variaveis','Onboarding','Marketing','Split coprodutores','Resultado operacao','Dividendos','Caixa retido','Prolabore Ivan','Novos redes sociais','Novos outros canais','Novos workshops','Edicoes workshops','Custo workshops','Ativos redes sociais','Ativos outros canais','Ativos workshops'];
     const numeric=value=>Number(value).toFixed(2).replace('.',',');
     const csv=[headers.join(';'),...current.timeline.map(row=>{
       const date=new Intl.DateTimeFormat('pt-BR',{month:'short',year:'numeric',timeZone:'UTC'}).format(new Date(Date.UTC(2026,9+row.month,1)));
-      return [row.month,date,state.payoutMode,...[row.clients,row.newClients,row.mrr,row.revenue,row.marketplaceGmv,row.marketplaceRevenue,row.eventGmv,row.eventRevenue,row.implementationRevenue,row.implementationTransfer,row.implementationCost,row.gateway,row.taxes,row.fixed,row.variable,row.onboarding,row.marketing,row.coproduction,row.result,row.dividends,row.cash,state.prolabore].map(numeric)].join(';');
+      return [row.month,date,state.payoutMode,...[row.clients,row.newClients,row.mrr,row.revenue,row.marketplaceGmv,row.marketplaceRevenue,row.eventGmv,row.eventRevenue,row.implementationRevenue,row.implementationTransfer,row.implementationCost,row.gateway,row.taxes,row.fixed,row.variable,row.onboarding,row.marketing,row.coproduction,row.result,row.dividends,row.cash,state.prolabore,row.socialNew,row.otherNew,row.workshopNew,row.workshops,row.workshopCost,row.socialActive,row.otherActive,row.workshopActive].map(numeric)].join(';');
     })].join('\r\n');download('bia-bp-fluxo-60-meses.csv','\uFEFF'+csv,'text/csv;charset=utf-8');
   }
   $('export-button').addEventListener('click',()=>$('export-dialog').showModal());

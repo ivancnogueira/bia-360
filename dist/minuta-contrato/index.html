@@ -43,15 +43,15 @@
           </fieldset>
           <fieldset><legend>Projeto e vigência</legend>
             <label>Nome do projeto<input name="projectName" value="BIA 360"></label>
-            <label>Data de início<input name="startDate" type="date" value="2026-11-03"></label>
-            <label>Prazo inicial (meses)<input name="termMonths" type="number" min="1" value="60"></label>
+            <label>Data de início<input name="startDate" type="date" value="2026-10-28"></label>
+            <label>Vigência<input value="Prazo indeterminado" disabled aria-label="Vigência por prazo indeterminado"></label>
             <label>Foro eleito<input name="venue" value="Curitiba, Paraná"></label>
           </fieldset>
           <fieldset><legend>Participações e remuneração</legend>
             <label>Cota da sociedade ostensiva<input name="baroneShare" type="number" min="0" max="100" step="0.01" value="80"></label>
             <label>Cota do sócio participante<input name="ivanShare" type="number" min="0" max="100" step="0.01" value="20"></label>
             <label>Pró-labore mensal do sócio participante<input name="prolabore" type="number" min="0" step="0.01" value="1500"></label>
-            <label>Modelo de distribuição<select name="paymentModel"><option value="dividendos">Distribuição de resultado</option><option value="coproducao">Coprodução por split no gateway</option></select></label>
+            <label>Modelo de recebimento<select name="paymentModel"><option value="coproducao" selected>Split direto no gateway</option><option value="dividendos">Distribuição de resultado</option></select></label>
             <label>Percentual do resultado disponível a distribuir<input name="distributionRate" type="number" min="0" max="100" step="0.01" value="50"></label>
           </fieldset>
           <fieldset><legend>Assinatura</legend>
@@ -77,24 +77,25 @@
           <p>1.2. A exploração do objeto social será exercida exclusivamente pela Sócia Ostensiva, em seu próprio nome e sob sua própria responsabilidade perante terceiros.</p>
 
           <h3>2. Vigência</h3>
-          <p>2.1. A vigência inicia-se em <span data-field="startDate" data-format="date" class="blank">[data]</span> e permanecerá válida por <span data-field="termMonths">[prazo]</span> meses, renovando-se automaticamente por iguais períodos, salvo manifestação escrita de qualquer das partes com antecedência mínima de 60 dias.</p>
+          <p>2.1. A vigência inicia-se em <span data-field="startDate" data-format="date" class="blank">[data]</span> e é celebrada por prazo indeterminado, salvo rescisão na forma deste instrumento.</p>
 
           <h3>3. Participações, resultado e remuneração</h3>
-          <p>3.1. As partes participam dos resultados da SCP nas seguintes proporções: <strong><span data-field="baroneShare" data-format="percent">80%</span> para a Sócia Ostensiva</strong> e <strong><span data-field="ivanShare" data-format="percent">20%</span> para o Sócio Participante</strong>.</p>
+          <p>3.1. As partes participam economicamente da SCP nas seguintes proporções: <strong><span data-field="baroneShare" data-format="percent">80%</span> para a Sócia Ostensiva</strong> e <strong><span data-field="ivanShare" data-format="percent">20%</span> para o Sócio Participante</strong>. Esta participação econômica não se confunde, por si só, com quota de sociedade limitada, cuja eventual constituição exigirá instrumento próprio.</p>
           <p>3.2. O Sócio Participante fará jus a pró-labore mensal de <strong><span data-field="prolabore" data-format="currency">R$ 1.500,00</span></strong>, sujeito aos descontos legais aplicáveis e pago até o quinto dia útil do mês subsequente. O pró-labore remunera a atuação técnica e não é antecipação, empréstimo, aporte ou valor a ser recuperado pela Sociedade.</p>
-          <p class="model-dividend">3.3. No modelo de distribuição de resultado, será apurado mensalmente o resultado econômico da operação. Após tributos, taxas, reembolsos, custos, despesas, provisões, reserva de caixa e prejuízos acumulados, até <span data-field="distributionRate" data-format="percent">50%</span> do resultado disponível poderá ser distribuído às partes em suas proporções, mediante demonstrativo compartilhado.</p>
-          <p class="model-split" hidden>3.3. No modelo de coprodução, a participação econômica será operacionalizada por split no gateway de pagamento, na proporção acima, sobre as receitas elegíveis efetivamente liquidadas, após taxas do meio de pagamento, estornos e chargebacks. Este modelo não implica distribuição adicional sobre a mesma receita, salvo aditivo escrito.</p>
-          <p>3.4. As partes escolherão e formalizarão, em anexo ou aditivo, o modelo operacional de cada fonte de receita. A configuração técnica do gateway não substitui esta minuta, a contabilidade regular, as obrigações fiscais ou o acordo entre as partes.</p>
+          <p class="model-dividend" hidden>3.3. No modelo de distribuição de resultado, será apurado mensalmente o resultado econômico da operação. Após tributos, taxas, reembolsos, custos, despesas, provisões, reserva de caixa e prejuízos acumulados, até <span data-field="distributionRate" data-format="percent">50%</span> do resultado disponível poderá ser distribuído às partes em suas proporções, mediante demonstrativo compartilhado.</p>
+          <p class="model-split">3.3. O modelo principal de recebimento será a coprodução por <strong>split direto no gateway de pagamento</strong>. O Sócio Participante receberá <strong><span data-field="ivanShare" data-format="percent">20%</span></strong> da receita líquida elegível efetivamente liquidada, e a Sócia Ostensiva receberá <strong><span data-field="baroneShare" data-format="percent">80%</span></strong>, após as taxas do meio de pagamento, estornos, chargebacks, impostos retidos pelo intermediador e reembolsos. A mesma receita não gerará distribuição adicional, salvo aditivo escrito.</p>
+          <p class="model-split">3.4. Consideram-se receitas elegíveis, enquanto configuradas no gateway, as assinaturas, ofertas de lançamento, planos recorrentes, upgrades, taxas de implementação e demais receitas próprias da plataforma. Comissão sobre marketplace ou ingresso de terceiro somente será elegível sobre a margem ou comissão própria da operação, conforme anexo comercial.</p>
+          <p>3.5. A Sócia Ostensiva manterá a conta principal do gateway e habilitará o split em favor do Sócio Participante. Se o gateway não suportar essa configuração, as partes formalizarão um fluxo substituto de repasse, com demonstrativo mensal e prazo de pagamento definido em anexo. A configuração técnica do gateway não substitui esta minuta, a contabilidade regular, as obrigações fiscais ou o acordo entre as partes.</p>
 
           <h3>4. Aportes, custos e prestação de contas</h3>
           <p>4.1. Aportes extraordinários, contratações fora do orçamento e assunção de obrigações relevantes dependerão de aprovação escrita das partes. Nenhum aporte será presumido apenas pela prestação de trabalho técnico.</p>
-          <p>4.2. A Sócia Ostensiva manterá registros de faturamento, custos, tributos, estornos, obrigações e resultado do projeto, disponibilizando ao Sócio Participante demonstrativo mensal até o décimo dia útil do mês subsequente.</p>
+          <p>4.2. A Sócia Ostensiva manterá registros de faturamento, custos, tributos, estornos, obrigações e resultado do projeto, disponibilizando ao Sócio Participante demonstrativo mensal até o décimo dia útil do mês subsequente, inclusive relatório do gateway que permita conferir o split.</p>
           <p>4.3. A contratação de equipe adicional poderá ser aprovada conforme orçamento. Custos de terceiros, inclusive suporte e desenvolvimento, deverão constar do demonstrativo correspondente e observar a aprovação aplicável.</p>
 
           <h3>5. Gestão, representação e responsabilidades</h3>
           <p>5.1. A administração e a relação externa com clientes, fornecedores, plataformas, instituições financeiras, gateway e órgãos públicos caberão à Sócia Ostensiva. O Sócio Participante não se obrigará perante terceiros em nome da SCP, salvo procuração ou autorização escrita específica.</p>
           <p>5.2. O Sócio Participante responderá pelas entregas técnicas e estratégicas expressamente aprovadas, sem garantia de resultado comercial, tecnológico ou de captação além das obrigações assumidas em plano de trabalho.</p>
-          <p>5.3. A Sócia Ostensiva será responsável por decisões comerciais, tributárias, financeiras e de atendimento ao consumidor tomadas em seu nome, sem prejuízo da cooperação entre as partes.</p>
+          <p>5.3. A Sócia Ostensiva será responsável por decisões comerciais, tributárias, financeiras e de atendimento ao consumidor tomadas em seu nome, sem prejuízo da cooperação entre as partes. Alteração das participações, contratação de dívida em nome do projeto, cessão de ativos essenciais, desligamento do Sócio Participante sem justa causa ou venda do projeto dependerão de instrumento escrito assinado por ambas as partes.</p>
 
           <h3>6. Propriedade intelectual e dados</h3>
           <p>6.1. Cada parte preserva a titularidade de suas marcas, metodologias, softwares, bibliotecas, códigos, bancos de dados, materiais e ativos preexistentes. O uso no projeto será regido por licença não exclusiva, limitada ao objeto desta SCP, enquanto esta estiver vigente, salvo aditivo específico de cessão.</p>
@@ -102,7 +103,7 @@
           <p>6.3. As partes observarão a legislação aplicável de proteção de dados, segurança da informação, direitos do consumidor e comunicações por canais digitais. Cada parte responderá por acessos e dados sob seu controle.</p>
 
           <h3>7. Confidencialidade</h3>
-          <p>7.1. Informações comerciais, financeiras, técnicas, estratégicas e dados de clientes acessados em razão desta SCP são confidenciais e não poderão ser divulgados ou utilizados fora do objeto, salvo exigência legal ou autorização escrita.</p>
+          <p>7.1. Informações comerciais, financeiras, técnicas, estratégicas e dados de clientes acessados em razão desta SCP são confidenciais e não poderão ser divulgados ou utilizados fora do objeto, salvo exigência legal ou autorização escrita. A obrigação perdurará por cinco anos após o término, sem prejuízo de sigilo legal aplicável.</p>
 
           <h3>8. Rescisão e continuidade</h3>
           <p>8.1. Qualquer parte poderá denunciar esta SCP mediante aviso escrito de 60 dias. Poderá haver rescisão imediata por descumprimento material não sanado em 15 dias, violação de confidencialidade, fraude, uso indevido de ativos ou infração legal relevante.</p>
@@ -110,7 +111,8 @@
 
           <h3>9. Disposições finais</h3>
           <p>9.1. Alterações a esta minuta somente terão validade quando realizadas por escrito e assinadas pelas partes. A tolerância a descumprimento não importa novação ou renúncia.</p>
-          <p>9.2. Fica eleito o foro da Comarca de <span data-field="venue" class="blank">[foro]</span>, com renúncia a qualquer outro, por mais privilegiado que seja, para dirimir controvérsias decorrentes deste instrumento, sem prejuízo de tentativa prévia de composição amigável.</p>
+          <p>9.2. As partes buscarão composição amigável e mediação privada antes do ajuizamento de ação, exceto em medida urgente. Persistindo a controvérsia, fica eleito o foro da Comarca de <span data-field="venue" class="blank">[foro]</span>, com renúncia a qualquer outro, por mais privilegiado que seja.</p>
+          <p>9.3. Quando assinado pelas partes e por duas testemunhas, o instrumento poderá constituir título executivo extrajudicial nos limites da legislação aplicável, devendo a redação final ser validada por assessoria jurídica.</p>
 
           <p class="closing">E, por estarem de acordo, firmam o presente instrumento em duas vias de igual teor, juntamente com as testemunhas abaixo.</p>
           <p class="signature-date"><span data-field="signatureCity">[cidade]</span>, <span data-field="signatureDate" data-format="date" class="blank">[data]</span>.</p>

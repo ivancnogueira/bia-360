@@ -150,36 +150,37 @@
     const rows=[['Primeiras mensalidades',r.launchGross,'income']];
     if(launch.grossSaas>r.launchGross)rows.push(['Outras assinaturas no primeiro mês',launch.grossSaas-r.launchGross,'income']);
     if(launch.implementationRevenue>0)rows.push(['Serviços de implementação',launch.implementationRevenue,'income']);
-    rows.push(['Checkout de todas as receitas',-launch.gateway,''],['Provisão tributária',-launch.taxes,''],['Pró-labore de Ivan',-state.prolabore,''],['Equipe, infraestrutura e administrativo',-(launch.fixed-state.prolabore),''],['IA, uso e ativação',-(launch.variable+launch.onboarding),'']);
+    rows.push(['Checkout de todas as receitas',-launch.gateway,''],['Provisão tributária',-launch.taxes,''],['Coordenação técnica, pró-labore',-state.prolabore,''],['Equipe, infraestrutura e administrativo',-(launch.fixed-state.prolabore),''],['IA, uso e ativação',-(launch.variable+launch.onboarding),'']);
     if(launch.marketing>0)rows.push(['Divulgação do lançamento',-launch.marketing,'']);
     if(launch.coproduction>0)rows.push(['Repasse aos coprodutores',-launch.coproduction,'split-row']);
-    if(launch.implementationTransfer>0)rows.push(['Repasse da implementação a Ivan',-launch.implementationTransfer,'split-row']);
+    if(launch.implementationTransfer>0)rows.push(['Execução da implementação',-launch.implementationTransfer,'split-row']);
     const root=$('launch-waterfall');root.replaceChildren();
     rows.forEach(([label,value,type])=>{const row=el('div','waterfall-row '+type);row.append(el('span','',label),el('strong','',exact(value)));const bar=el('span','waterfall-bar'),inner=el('i');inner.style.width=Math.min(100,Math.max(0,Math.abs(value)/Math.max(1,launch.revenue)*100))+'%';bar.append(inner);row.append(bar);root.append(row);});
     set('launch-mode-badge',isSplit?'COPRODUÇÃO':'DIVIDENDOS');set('launch-profit',exact(launch.result));$('launch-profit').classList.toggle('negative',launch.result<0);
     set('launch-ivan',exact(r.launchIvan));set('launch-ivan-note','Pró-labore + '+(isSplit?'split de assinaturas':'dividendos')+(launch.implementationTransfer>0?' + implementação':''));
     const barone=launch.allocations.find(p=>p.id==='barone');
     set('launch-barone-label',isSplit?'Barone: repasse do gateway':'Barone: dividendos');set('launch-barone',exact(isSplit?barone.split:barone.dividends));
-    set('launch-barone-note',isSplit?'Antes dos custos que ficam com a operação':'Depois dos custos e da reserva para reinvestir');
+    set('launch-barone-note',isSplit?'Repasse antes dos custos da operação. Após as despesas previstas, o saldo da operação é '+exact(launch.result)+'.':'Participação de '+pct(barone.share)+' sobre a distribuição, depois dos custos e da reserva para reinvestir.');
     const compare=$('payout-comparison');compare.replaceChildren();
     const div=r.comparison.find(c=>c.mode==='dividendos'),cop=r.comparison.find(c=>c.mode==='coproducao');
     const ivanPayout=c=>{const p=c.launch.allocations.find(p=>p.id==='ivan');return c.mode==='dividendos'?p.dividends:p.split;};
     const values=[
       ['Base da participação','Resultado e caixa disponíveis','Assinaturas após checkout e reembolsos'],
       ['Parcela do resultado disponível distribuída',pct(state.distribute),'Não se aplica ao split'],
+      ['Resultado da operação após repasses',exact(div.launch.result),exact(cop.launch.result),'highlight'],
+      ['Caixa retido após distribuição',exact(div.launch.cash),exact(cop.launch.cash),'highlight'],
+      ['Barone: dividendos / repasse antes dos custos',exact(div.launch.allocations.find(p=>p.id==='barone').dividends),exact(cop.launch.allocations.find(p=>p.id==='barone').split)],
       ['Parcela de Ivan, sem pró-labore',exact(ivanPayout(div)),exact(ivanPayout(cop))],
       ['Pró-labore garantido',exact(state.prolabore),exact(state.prolabore)],
       ['Implementação para Ivan',exact(div.launch.implementationTransfer),exact(cop.launch.implementationTransfer)],
-      ['Total recebido por Ivan',exact(div.launchIvan),exact(cop.launchIvan),'highlight'],
-      ['Após apoio de implementação, antes de tributos pessoais',exact(div.launchIvan-div.launch.implementationCost),exact(cop.launchIvan-cop.launch.implementationCost)],
-      ['Resultado da operação após repasses',exact(div.launch.result),exact(cop.launch.result)],
-      ['Caixa retido após distribuição',exact(div.launch.cash),exact(cop.launch.cash)]
+      ['Total recebido por Ivan',exact(div.launchIvan),exact(cop.launchIvan)],
+      ['Após apoio de implementação, antes de tributos pessoais',exact(div.launchIvan-div.launch.implementationCost),exact(cop.launchIvan-cop.launch.implementationCost)]
     ];values.forEach(row=>tableRow(compare,row.slice(0,3),row[3]));
     const perFee=state.implementationPrice*state.gateway/100+state.gatewayFixed;
-    set('implementation-heading','Implementação assistida: '+pct(state.implementationShare)+' para quem entrega');
+    set('implementation-heading','Implementação assistida para ativar clientes');
     const afterCheckout=Math.max(0,state.implementationPrice-perFee),transfer=afterCheckout*state.implementationShare/100;
     const target=$('implementation-results');target.replaceChildren();
-    [['Repasse por entrega a Ivan',exact(transfer)],['Depois do apoio contratado',exact(transfer-state.implementationCost)],['Parcela da operação, antes de tributos',exact(afterCheckout-transfer)],['Serviços simulados no lançamento',state.implementationEnabled?count(launch.implementations):'Não incluídos']].forEach(([label,value])=>{const item=el('div');item.append(el('span','',label),el('strong','',value));target.append(item);});
+    [['Execução especializada, por entrega',exact(transfer)],['Margem da execução após contratar apoio',exact(transfer-state.implementationCost)],['Parcela da operação, antes de tributos',exact(afterCheckout-transfer)],['Serviços simulados no lançamento',state.implementationEnabled?count(launch.implementations):'Não incluídos']].forEach(([label,value])=>{const item=el('div');item.append(el('span','',label),el('strong','',value));target.append(item);});
   }
   function renderSummary(r){
     const s=r.selected,years=state.horizon,isSplit=state.payoutMode==='coproducao';
@@ -187,9 +188,11 @@
     set('kpi-launch',currency(r.launchGross));set('kpi-launch-clients',count(r.paid)+' assinantes');
     set('kpi-net',currency(r.launchNet));set('kpi-fee',pct(state.gateway)+(state.gatewayFixed?' + '+exact(state.gatewayFixed)+' por cobrança':' de taxa')+', antes dos demais custos');
     set('kpi-mrr',currency(s.mrr));set('kpi-mrr-note','Ano '+years+' · '+count(s.clients)+' contas ativas');
+    set('kpi-active',count(s.clients));set('kpi-active-note','Negócios conectados à plataforma ao final do ano '+years);
     set('kpi-valuation',compact.format(r.valuations[1].equity));set('kpi-valuation-note','Ano '+years+' · sensibilidade, não valor atual');
-    set('mode-description',isSplit?'20% de Ivan sobre receita própria elegível após checkout. Implementação tem regra própria.':'20% de Ivan sobre o resultado distribuível, depois dos custos. Pró-labore à parte.');
-    set('bia-insight','No cenário atual, '+count(r.signups)+' adesões geram '+currency(r.launchGross)+' em primeiras mensalidades. Ao final de '+years+' '+(years===1?'ano':'anos')+', são '+count(s.clients)+' contas ativas. '+(isSplit?'O split gera repasse mesmo antes da apuração de lucro.':'A distribuição exige resultado positivo e caixa disponível.'));
+    set('mode-description',isSplit?'Repasses sobre a receita própria elegível após checkout. A operação mantém a responsabilidade pelos custos.':'Distribuição sobre o resultado disponível, depois dos custos e da reserva para reinvestimento.');
+    set('overview-mode-link','Modelo: '+(isSplit?'coprodução':'dividendos')+' · ver estrutura');
+    set('bia-insight','Para a Barone, o cenário conecta '+count(r.paid)+' primeiras assinaturas no BSV a uma base de '+count(s.clients)+' negócios no ano '+years+'. A recorrência projetada chega a '+currency(s.mrr)+' por mês, com workshops e canais digitais sustentando a aquisição. Valores de cenário, sujeitos a execução e retenção.');
     const warnings=$('warnings');warnings.replaceChildren();warnings.hidden=!r.riskWarnings.length;r.riskWarnings.forEach(text=>warnings.append(el('p','',text)));
     doc.querySelector('.nav-pill').textContent=count(r.paid);
     set('forecast-clients',count(s.clients));set('forecast-revenue',currency(s.revenue));set('forecast-cash',currency(s.cash));set('forecast-funding',currency(r.requiredCapital));
@@ -212,13 +215,16 @@
     const row=(label,key,format=currency)=>tableRow(yearTable,[label,...periods.map(y=>format(y[key]))]);
     row('Clientes ativos no fim do ano','clients',count);row('MRR de software no fim do ano','mrr');row('ARR de software, MRR × 12','arr');row('Receita própria do ano','revenue');row('Resultado da operação no ano','result');row('Caixa acumulado retido','cash');
     row('Novos clientes dos workshops no ano','workshopNew',count);
-    tableRow(yearTable,['Ivan: '+(isSplit?'split':'dividendos')+' do ano',...periods.map(y=>currency(y.allocations.find(p=>p.id==='ivan')[isSplit?'split':'dividends']))]);
-    tableRow(yearTable,['Pró-labore de Ivan no ano',...periods.map(()=>currency(state.prolabore*12))]);
-    tableRow(yearTable,['Ivan: implementação no ano',...periods.map(y=>currency(y.implementationTransfer))]);
     row('Suporte no fim do ano','support',value=>count(value)+' pessoas');row('Equipe dev no fim do ano','developers',value=>count(value)+' pessoas');
     const dividendScenario=r.comparison.find(c=>c.mode==='dividendos'),splitScenario=r.comparison.find(c=>c.mode==='coproducao');
+    tableRow(yearTable,['Barone: dividendos no cenário de distribuição',...[0,1,4].map(index=>currency(dividendScenario.years[index].allocations.find(p=>p.id==='barone').dividends))]);
+    tableRow(yearTable,['Barone: repasse na coprodução, antes dos custos',...[0,1,4].map(index=>currency(splitScenario.years[index].allocations.find(p=>p.id==='barone').split))]);
+    const partnerHistory=$('partner-history-table');partnerHistory.replaceChildren();
+    tableRow(partnerHistory,['Ivan: '+(isSplit?'split':'dividendos')+' do ano',...periods.map(y=>currency(y.allocations.find(p=>p.id==='ivan')[isSplit?'split':'dividends']))]);
+    tableRow(partnerHistory,['Pró-labore de Ivan no ano',...periods.map(()=>currency(state.prolabore*12))]);
+    tableRow(partnerHistory,['Ivan: implementação no ano',...periods.map(y=>currency(y.implementationTransfer))]);
     for(const [label,scenario,key] of [['Ivan total: cenário dividendos',dividendScenario,'dividends'],['Ivan total: cenário coprodução',splitScenario,'split']]){
-      tableRow(yearTable,[label,...[0,1,4].map(index=>{const year=scenario.years[index],ivan=year.allocations.find(p=>p.id==='ivan');return currency(ivan[key]+state.prolabore*12+year.implementationTransfer);})]);
+      tableRow(partnerHistory,[label,...[0,1,4].map(index=>{const year=scenario.years[index],ivan=year.allocations.find(p=>p.id==='ivan');return currency(ivan[key]+state.prolabore*12+year.implementationTransfer);})]);
     }
     tableRow(yearTable,['Operação: resultado no cenário dividendos',...[0,1,4].map(index=>currency(dividendScenario.years[index].result))]);
     tableRow(yearTable,['Operação: resultado no cenário coprodução',...[0,1,4].map(index=>currency(splitScenario.years[index].result))]);
@@ -306,7 +312,20 @@
   function renderValuation(r){
     set('valuation-horizon','SENSIBILIDADE · ANO '+state.horizon);
     const cards=$('valuation-cards');cards.replaceChildren();
-    r.valuations.forEach((value,i)=>{const card=el('article','valuation-card'+(i===1?' featured':'')),top=el('div','valuation-top');top.append(el('span','',['Faixa baixa','Cenário base','Faixa alta'][i]),el('strong','',decimal.format(value.multiple)+'× ARR'));card.append(top,el('strong','',compact.format(value.equity)),el('p','',pct(state.riskDiscount)+' de ajuste de risco. Caixa e dívida considerados à parte.'));const share=el('div','ivan-value');share.append(el('span','','Ivan · 20% de equity'),el('b','',currency(value.equity*.2)));card.append(share);cards.append(card);});
+    const baroneShare=state.partners.find(p=>p.id==='barone').share;
+    r.valuations.forEach((value,i)=>{
+      const card=el('article','valuation-card'+(i===1?' featured':'')),top=el('div','valuation-top');
+      top.append(el('span','',['Faixa baixa','Cenário base','Faixa alta'][i]),el('strong','',decimal.format(value.multiple)+'× ARR'));
+      const total=el('strong','project-total-value',compact.format(value.equity));total.title=currency(value.equity);
+      card.append(top,el('span','project-total-label','Valor total do projeto · 100%'),total);
+      const barone=el('div','barone-value'),stake=el('strong','',compact.format(value.equity*baroneShare/100));
+      stake.title=currency(value.equity*baroneShare/100);
+      barone.dataset.share=String(baroneShare);barone.dataset.value=String(value.equity*baroneShare/100);
+      barone.append(el('span','','Participação Barone · '+pct(baroneShare)),stake,el('small','',currency(value.equity*baroneShare/100)));
+      const others=el('div','other-value');others.append(el('span','','Demais participações · '+pct(100-baroneShare)),el('b','',currency(value.equity*(100-baroneShare)/100)));
+      card.append(barone,others,el('p','',pct(state.riskDiscount)+' de ajuste de risco. Cenário futuro, não avaliação atual nem recebimento em caixa.'));
+      cards.append(card);
+    });
     const roundSummary=$('round-summary'),roundTable=$('round-table');roundSummary.replaceChildren();roundTable.replaceChildren();
     if(!r.round.valid){roundSummary.append(el('div','round-empty',r.round.reason));roundTable.append(el('div','round-empty','As cotas atuais não mudam. Preencha uma rodada compatível para visualizar a simulação.'));}
     else{

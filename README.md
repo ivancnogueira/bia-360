@@ -1,8 +1,10 @@
 # Apresentação BIA e Barone
 
-Apresentação HTML e dashboard de plano de negócio para o lançamento do SaaS beta em 3 de novembro de 2026, durante o BSV. A premissa societária atual informada é Barone em 80% e Ivan Nogueira em 20% protegidos no simulador. Clientes embaixadores recebem uma condição comercial de lançamento e ajudam na evolução, sem participação societária.
+Plano de expansão do ecossistema Barone com a BIA 360: formação, comunidade, atendimento e gestão conectados a uma oportunidade de receita recorrente. O lançamento do SaaS beta está previsto para 3 de novembro de 2026, durante o BSV. Clientes embaixadores recebem uma condição comercial de lançamento, sem participação societária.
 
-## Dashboard BP, acordo atualizado em 28/10/2026
+## Plano de expansão Barone, atualizado em 28/10/2026
+
+O dashboard prioriza o projeto, a oportunidade de expansão e a participação Barone. Os cards de valuation mostram 100% do projeto, a cota Barone em destaque e o total das demais participações; todos acompanham as cotas editáveis. A remuneração individual permanece detalhada em Sociedade e operação, sem mudança das regras financeiras.
 
 Abra [o dashboard público](https://ivancnogueira.github.io/bia-360/dashboard/) ou `dist/dashboard/index.html` no servidor local. A apresentação original continua na raiz e identifica como históricas as antigas propostas financeiras. Para as premissas atuais, use o dashboard.
 

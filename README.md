@@ -6,7 +6,7 @@ Plano de expansão do ecossistema Barone com a BIA 360: formação, comunidade, 
 
 O dashboard prioriza o projeto, a oportunidade de expansão e a participação Barone. Os cards de valuation mostram 100% do projeto, a cota Barone em destaque e o total das demais participações; todos acompanham as cotas editáveis. A remuneração individual permanece detalhada em Sociedade e operação, sem mudança das regras financeiras.
 
-Abra [o dashboard público](https://ivancnogueira.github.io/bia-360/dashboard/) ou `dist/dashboard/index.html` no servidor local. A apresentação original continua na raiz e identifica como históricas as antigas propostas financeiras. Para as premissas atuais, use o dashboard.
+Abra [o dashboard público](https://ivancnogueira.github.io/bia-360/dashboard/) ou `dist/dashboard/index.html` no servidor local. A [minuta pública de SCP](https://ivancnogueira.github.io/bia-360/minuta-contrato/) permite preencher os dados localmente e salvar uma cópia em PDF para revisão jurídica. A apresentação original continua na raiz e identifica como históricas as antigas propostas financeiras. Para as premissas atuais, use o dashboard.
 
 - Evento com 2.000 participantes, 20% de adesão e 400 primeiras mensalidades pagas no cenário inicial.
 - Três planos, preços e mix editáveis; projeções mensais por 60 meses e comparação de 1, 2 e 5 anos.

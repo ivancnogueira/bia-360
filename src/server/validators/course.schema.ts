@@ -31,3 +31,4 @@ export const UpdateCourseSchema = CreateCourseSchema.omit({ organizationId: true
 
 export type CreateCourseInput = z.infer<typeof CreateCourseSchema>;
 export type UpdateCourseInput = z.infer<typeof UpdateCourseSchema>;
+

@@ -102,11 +102,11 @@ model Organization {
   courses           Course[]
   classGroups       ClassGroup[]
   enrollments       Enrollment[]
-  certificates      Certificate[]
   contacts          Contact[]
   conversations     Conversation[]
   auditEvents       AuditEvent[]
   outboxMessages    OutboxMessage[]
+  whatsappChannels  WhatsAppChannel[]
 
   @@map("organizations")
 }
@@ -131,6 +131,7 @@ model Unit {
   financialEntries  FinancialEntry[]
   classGroups       ClassGroup[]
   auditEvents       AuditEvent[]
+  whatsappChannels  WhatsAppChannel[]
 
   @@index([organizationId])
   @@map("units")
@@ -481,7 +482,6 @@ model Enrollment {
   classGroup     ClassGroup       @relation(fields: [classGroupId], references: [id], onDelete: Cascade)
   contact        Contact          @relation(fields: [contactId], references: [id], onDelete: Cascade)
   attendances    StudentAttendance[]
-  certificate    Certificate?
 
   @@index([organizationId, classGroupId])
   @@index([contactId])
@@ -499,21 +499,6 @@ model StudentAttendance {
 
   @@index([enrollmentId, sessionDate])
   @@map("student_attendances")
-}
-
-model Certificate {
-  id               String       @id @default(cuid())
-  organizationId   String       @map("organization_id")
-  enrollmentId     String       @unique @map("enrollment_id")
-  verificationCode String       @unique @map("verification_code")
-  issuedAt         DateTime     @default(now()) @map("issued_at")
-  attendanceRate   Int          @map("attendance_rate") // Porcentagem inteira (ex: 85 para 85%)
-
-  organization     Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  enrollment       Enrollment   @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
-
-  @@index([organizationId, verificationCode])
-  @@map("certificates")
 }
 
 // -----------------------------------------------------------------------------
@@ -575,6 +560,26 @@ model Message {
 
   @@index([conversationId, createdAt])
   @@map("messages")
+}
+
+model WhatsAppChannel {
+  id                 String       @id @default(cuid())
+  organizationId     String       @map("organization_id")
+  unitId             String?      @map("unit_id")
+  name               String       @default("WhatsApp Oficial")
+  phoneNumberId      String       @unique @map("phone_number_id")
+  displayPhoneNumber String?      @map("display_phone_number")
+  accessToken        String       @map("access_token") @db.Text
+  webhookSecret      String       @map("webhook_secret")
+  active             Boolean      @default(true)
+  createdAt          DateTime     @default(now()) @map("created_at")
+  updatedAt          DateTime     @updatedAt @map("updated_at")
+
+  organization       Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  unit               Unit?        @relation(fields: [unitId], references: [id], onDelete: SetNull)
+
+  @@index([organizationId])
+  @@map("whatsapp_channels")
 }
 
 // -----------------------------------------------------------------------------

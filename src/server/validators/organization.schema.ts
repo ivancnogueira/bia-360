@@ -21,3 +21,4 @@ export const UpdateOrganizationSchema = CreateOrganizationSchema.partial();
 
 export type CreateOrganizationInput = z.infer<typeof CreateOrganizationSchema>;
 export type UpdateOrganizationInput = z.infer<typeof UpdateOrganizationSchema>;
+

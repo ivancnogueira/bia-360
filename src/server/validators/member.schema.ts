@@ -19,3 +19,4 @@ export const UpdateMemberSchema = z.object({
 
 export type CreateMemberInput = z.infer<typeof CreateMemberSchema>;
 export type UpdateMemberInput = z.infer<typeof UpdateMemberSchema>;
+

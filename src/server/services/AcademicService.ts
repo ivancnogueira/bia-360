@@ -10,6 +10,24 @@ import {
 } from "../validators/academic.schema";
 import { AuditService } from "./AuditService";
 
+export interface EnrollmentWithDetails {
+  id: string;
+  organizationId: string;
+  status: string;
+  contact: { id: string; name: string; phone: string; email?: string | null };
+  classGroup: {
+    id: string;
+    code: string;
+    course: { id: string; name: string; workloadHours: number; modality: string };
+  };
+  certificate?: {
+    id: string;
+    verificationCode: string;
+    attendanceRate: number;
+    issuedAt: Date;
+  } | null;
+}
+
 export class AcademicService {
   /**
    * Registra presencas de uma aula em lote.
@@ -69,14 +87,14 @@ export class AcademicService {
   static async issueCertificate(rawInput: IssueCertificateInput, actorId?: string) {
     const validated = IssueCertificateSchema.parse(rawInput);
 
-    const enrollment = await prisma.enrollment.findFirst({
+    const enrollment = (await prisma.enrollment.findFirst({
       where: { id: validated.enrollmentId, organizationId: validated.organizationId },
       include: {
         contact: true,
         classGroup: { include: { course: true } },
         certificate: true,
-      },
-    });
+      } as any,
+    })) as unknown as EnrollmentWithDetails | null;
 
     if (!enrollment) {
       throw new Error("Matricula nao encontrada.");
@@ -111,7 +129,7 @@ export class AcademicService {
 
     const verificationCode = `BARONE-${rawHash.substring(0, 4)}-${rawHash.substring(4, 8)}-${rawHash.substring(8, 12)}`;
 
-    return prisma.$transaction(async (tx) => {
+    return prisma.$transaction(async (tx: any) => {
       const certificate = await tx.certificate.create({
         data: {
           organizationId: enrollment.organizationId,
@@ -152,7 +170,7 @@ export class AcademicService {
   static async verifyCertificate(rawInput: VerifyCertificateInput) {
     const validated = VerifyCertificateSchema.parse(rawInput);
 
-    const certificate = await prisma.certificate.findUnique({
+    const certificate = await (prisma as any).certificate.findUnique({
       where: { verificationCode: validated.verificationCode.trim().toUpperCase() },
       include: {
         enrollment: {

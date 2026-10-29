@@ -1,1 +1,28 @@
-{"name":"bia-platform","private":true,"packageManager":"npm@11.16.0","workspaces":["apps/*"],"scripts":{"dev":"npm run dev --workspace=@bia/marketing","build":"npm run build --workspace=@bia/marketing","typecheck":"npm run typecheck --workspace=@bia/marketing"}}
+{
+  "name": "bia-platform",
+  "private": true,
+  "packageManager": "npm@11.16.0",
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace=@bia/marketing",
+    "build": "npm run build --workspace=@bia/marketing",
+    "typecheck": "npm run typecheck --workspace=@bia/marketing",
+    "typecheck:server": "tsc --noEmit",
+    "test:tenant": "tsx src/server/tests/tenant-isolation.test.ts",
+    "prisma:generate": "prisma generate",
+    "prisma:push": "prisma db push"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "prisma": "^7.10.1",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
+  },
+  "dependencies": {
+    "@prisma/client": "^7.10.1",
+    "dotenv": "^18.0.9",
+    "zod": "^3.24.2"
+  }
+}

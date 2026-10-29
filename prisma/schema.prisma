@@ -1,0 +1,602 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// -----------------------------------------------------------------------------
+// ENUMS ESTATISTICOS E DE ESTADO
+// -----------------------------------------------------------------------------
+
+enum RoleType {
+  OWNER
+  MANAGER
+  BARBER
+  INSTRUCTOR
+  RECEPTIONIST
+  CLIENT
+}
+
+enum AppointmentStatus {
+  SCHEDULED
+  CONFIRMED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}
+
+enum BookingHoldStatus {
+  HOLD
+  CONVERTED
+  EXPIRED
+  CANCELLED
+}
+
+enum OrderStatus {
+  OPEN
+  PAID
+  CANCELLED
+}
+
+enum PaymentMethod {
+  PIX
+  CREDIT_CARD
+  DEBIT_CARD
+  CASH
+  TRANSFER
+}
+
+enum FinancialEntryType {
+  REVENUE
+  EXPENSE
+}
+
+enum EnrollmentStatus {
+  PROSPECT
+  RESERVED
+  ENROLLED
+  COMPLETED
+  DROPPED
+}
+
+enum ChannelType {
+  WHATSAPP_OFFICIAL
+  WEB_CHAT
+}
+
+enum OutboxStatus {
+  PENDING
+  PROCESSING
+  SENT
+  FAILED
+}
+
+// -----------------------------------------------------------------------------
+// CORE MULTI-TENANT & AUTENTICACAO
+// -----------------------------------------------------------------------------
+
+model Organization {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  document    String?  // CNPJ ou CPF
+  phone       String?
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  units             Unit[]
+  members           Member[]
+  professionals     Professional[]
+  services          Service[]
+  appointments      Appointment[]
+  bookingHolds      BookingHold[]
+  orders            Order[]
+  cashSessions      CashSession[]
+  financialEntries  FinancialEntry[]
+  products          Product[]
+  stockMovements    StockMovement[]
+  courses           Course[]
+  classGroups       ClassGroup[]
+  enrollments       Enrollment[]
+  contacts          Contact[]
+  conversations     Conversation[]
+  auditEvents       AuditEvent[]
+  outboxMessages    OutboxMessage[]
+
+  @@map("organizations")
+}
+
+model Unit {
+  id             String       @id @default(cuid())
+  organizationId String       @map("organization_id")
+  name           String
+  address        String?
+  phone          String?
+  timezone       String       @default("America/Sao_Paulo")
+  active         Boolean      @default(true)
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+
+  organization      Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  members           Member[]
+  appointments      Appointment[]
+  bookingHolds      BookingHold[]
+  orders            Order[]
+  cashSessions      CashSession[]
+  financialEntries  FinancialEntry[]
+  classGroups       ClassGroup[]
+  auditEvents       AuditEvent[]
+
+  @@index([organizationId])
+  @@map("units")
+}
+
+model User {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  name         String
+  phone        String?
+  passwordHash String    @map("password_hash")
+  avatarUrl    String?   @map("avatar_url")
+  active       Boolean   @default(true)
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  members      Member[]
+
+  @@map("users")
+}
+
+model Member {
+  id             String       @id @default(cuid())
+  organizationId String       @map("organization_id")
+  unitId         String?      @map("unit_id")
+  userId         String       @map("user_id")
+  role           RoleType     @default(BARBER)
+  active         Boolean      @default(true)
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  unit           Unit?        @relation(fields: [unitId], references: [id], onDelete: SetNull)
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, userId])
+  @@index([organizationId, unitId])
+  @@map("members")
+}
+
+// -----------------------------------------------------------------------------
+// DOMINIO DA BARBEARIA
+// -----------------------------------------------------------------------------
+
+model Professional {
+  id             String       @id @default(cuid())
+  organizationId String       @map("organization_id")
+  name           String
+  nickname       String?
+  phone          String?
+  commissionRate Int          @default(50) @map("commission_rate") // Porcentagem inteira (ex: 50 para 50%)
+  color          String?      @default("#c22ef3")
+  active         Boolean      @default(true)
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+
+  organization   Organization           @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  services       ProfessionalService[]
+  workSchedules  WorkSchedule[]
+  appointments   Appointment[]
+  bookingHolds   BookingHold[]
+
+  @@index([organizationId])
+  @@map("professionals")
+}
+
+model Service {
+  id              String       @id @default(cuid())
+  organizationId  String       @map("organization_id")
+  name            String
+  description     String?      @db.Text
+  durationMinutes Int          @default(30) @map("duration_minutes")
+  priceInCents    Int          @map("price_in_cents") // Preco em centavos inteiros (ex: 5000 = R$ 50,00)
+  category        String       @default("corte")
+  active          Boolean      @default(true)
+  createdAt       DateTime     @default(now()) @map("created_at")
+  updatedAt       DateTime     @updatedAt @map("updated_at")
+
+  organization    Organization          @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  professionals   ProfessionalService[]
+  orderItems      OrderItem[]
+
+  @@index([organizationId])
+  @@map("services")
+}
+
+model ProfessionalService {
+  professionalId     String       @map("professional_id")
+  serviceId          String       @map("service_id")
+  customPriceInCents Int?         @map("custom_price_in_cents")
+  customCommission   Int?         @map("custom_commission")
+
+  professional       Professional @relation(fields: [professionalId], references: [id], onDelete: Cascade)
+  service            Service      @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+
+  @@id([professionalId, serviceId])
+  @@map("professional_services")
+}
+
+model WorkSchedule {
+  id             String       @id @default(cuid())
+  professionalId String       @map("professional_id")
+  dayOfWeek      Int          @map("day_of_week") // 0 = Domingo, 1 = Segunda, etc.
+  startTime      String       @map("start_time") // Formato "09:00"
+  endTime        String       @map("end_time")   // Formato "19:00"
+  breakStartTime String?      @map("break_start_time")
+  breakEndTime   String?      @map("break_end_time")
+  active         Boolean      @default(true)
+
+  professional   Professional @relation(fields: [professionalId], references: [id], onDelete: Cascade)
+
+  @@index([professionalId, dayOfWeek])
+  @@map("work_schedules")
+}
+
+model Appointment {
+  id             String            @id @default(cuid())
+  organizationId String            @map("organization_id")
+  unitId         String            @map("unit_id")
+  professionalId String            @map("professional_id")
+  contactId      String            @map("contact_id")
+  startTime      DateTime          @map("start_time") // Gravado sempre em UTC
+  endTime        DateTime          @map("end_time")   // Gravado sempre em UTC
+  status         AppointmentStatus @default(SCHEDULED)
+  totalInCents   Int               @default(0) @map("total_in_cents")
+  notes          String?           @db.Text
+  createdAt      DateTime          @default(now()) @map("created_at")
+  updatedAt      DateTime          @updatedAt @map("updated_at")
+
+  organization   Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  unit           Unit              @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  professional   Professional      @relation(fields: [professionalId], references: [id], onDelete: Cascade)
+  contact        Contact           @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  order          Order?
+
+  @@index([organizationId, unitId])
+  @@index([professionalId, startTime])
+  @@index([contactId])
+  @@map("appointments")
+}
+
+model BookingHold {
+  id             String            @id @default(cuid())
+  organizationId String            @map("organization_id")
+  unitId         String            @map("unit_id")
+  professionalId String            @map("professional_id")
+  startTime      DateTime          @map("start_time")
+  endTime        DateTime          @map("end_time")
+  status         BookingHoldStatus @default(HOLD)
+  token          String            @unique
+  expiresAt      DateTime          @map("expires_at")
+  createdAt      DateTime          @default(now()) @map("created_at")
+
+  organization   Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  unit           Unit              @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  professional   Professional      @relation(fields: [professionalId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId, unitId])
+  @@index([professionalId, startTime, expiresAt])
+  @@map("booking_holds")
+}
+
+// -----------------------------------------------------------------------------
+// FINANCEIRO, COMANDAS E ESTOQUE
+// -----------------------------------------------------------------------------
+
+model Order {
+  id               String        @id @default(cuid())
+  organizationId   String        @map("organization_id")
+  unitId           String        @map("unit_id")
+  contactId        String?       @map("contact_id")
+  appointmentId    String?       @unique @map("appointment_id")
+  status           OrderStatus   @default(OPEN)
+  subtotalInCents  Int           @default(0) @map("subtotal_in_cents")
+  discountInCents  Int           @default(0) @map("discount_in_cents")
+  totalInCents     Int           @default(0) @map("total_in_cents")
+  paymentMethod    PaymentMethod? @map("payment_method")
+  paidAt           DateTime?     @map("paid_at")
+  createdAt        DateTime      @default(now()) @map("created_at")
+  updatedAt        DateTime      @updatedAt @map("updated_at")
+
+  organization     Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  unit             Unit          @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  contact          Contact?      @relation(fields: [contactId], references: [id], onDelete: SetNull)
+  appointment      Appointment?  @relation(fields: [appointmentId], references: [id], onDelete: SetNull)
+  items            OrderItem[]
+
+  @@index([organizationId, unitId])
+  @@index([contactId])
+  @@index([status])
+  @@map("orders")
+}
+
+model OrderItem {
+  id           String    @id @default(cuid())
+  orderId      String    @map("order_id")
+  serviceId    String?   @map("service_id")
+  productId    String?   @map("product_id")
+  quantity     Int       @default(1)
+  priceInCents Int       @map("price_in_cents") // Preco unitario em centavos
+  totalInCents Int       @map("total_in_cents") // quantity * priceInCents
+
+  order        Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  service      Service?  @relation(fields: [serviceId], references: [id], onDelete: SetNull)
+  product      Product?  @relation(fields: [productId], references: [id], onDelete: SetNull)
+
+  @@index([orderId])
+  @@map("order_items")
+}
+
+model CashSession {
+  id                    String    @id @default(cuid())
+  organizationId        String    @map("organization_id")
+  unitId                String    @map("unit_id")
+  openedByUserId        String    @map("opened_by_user_id")
+  closedByUserId        String?   @map("closed_by_user_id")
+  openingBalanceInCents Int       @default(0) @map("opening_balance_in_cents")
+  closingBalanceInCents Int?      @map("closing_balance_in_cents")
+  openedAt              DateTime  @default(now()) @map("opened_at")
+  closedAt              DateTime? @map("closed_at")
+
+  organization          Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  unit                  Unit         @relation(fields: [unitId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId, unitId])
+  @@map("cash_sessions")
+}
+
+model FinancialEntry {
+  id             String             @id @default(cuid())
+  organizationId String             @map("organization_id")
+  unitId         String             @map("unit_id")
+  type           FinancialEntryType
+  category       String
+  description    String
+  amountInCents  Int                @map("amount_in_cents") // Centavos inteiros
+  dueDate        DateTime           @map("due_date")
+  paidAt         DateTime?          @map("paid_at")
+  createdAt      DateTime           @default(now()) @map("created_at")
+  updatedAt      DateTime           @updatedAt @map("updated_at")
+
+  organization   Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  unit           Unit               @relation(fields: [unitId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId, unitId])
+  @@index([dueDate, paidAt])
+  @@map("financial_entries")
+}
+
+model Product {
+  id             String          @id @default(cuid())
+  organizationId String          @map("organization_id")
+  name           String
+  barcode        String?
+  category       String          @default("pomada")
+  priceInCents   Int             @map("price_in_cents")
+  costInCents    Int             @default(0) @map("cost_in_cents")
+  stockQuantity  Int             @default(0) @map("stock_quantity")
+  minStockAlert  Int             @default(5) @map("min_stock_alert")
+  active         Boolean         @default(true)
+  createdAt      DateTime        @default(now()) @map("created_at")
+  updatedAt      DateTime        @updatedAt @map("updated_at")
+
+  organization   Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  orderItems     OrderItem[]
+  stockMovements StockMovement[]
+
+  @@index([organizationId])
+  @@map("products")
+}
+
+model StockMovement {
+  id             String       @id @default(cuid())
+  organizationId String       @map("organization_id")
+  productId      String       @map("product_id")
+  quantity       Int          // Positivo para entrada, negativo para saida
+  type           String       // 'PURCHASE' | 'SALE' | 'ADJUSTMENT' | 'INTERNAL_USE'
+  reason         String?
+  createdAt      DateTime     @default(now()) @map("created_at")
+
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  product        Product      @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId, productId])
+  @@map("stock_movements")
+}
+
+// -----------------------------------------------------------------------------
+// DOMINIO DA ESCOLA DE BARBEIROS
+// -----------------------------------------------------------------------------
+
+model Course {
+  id              String       @id @default(cuid())
+  organizationId  String       @map("organization_id")
+  name            String
+  description     String?      @db.Text
+  workloadHours   Int          @default(40) @map("workload_hours")
+  priceInCents    Int          @map("price_in_cents")
+  modality        String       @default("presencial") // 'presencial' | 'online' | 'hibrido'
+  active          Boolean      @default(true)
+  createdAt       DateTime     @default(now()) @map("created_at")
+  updatedAt       DateTime     @updatedAt @map("updated_at")
+
+  organization    Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  classGroups     ClassGroup[]
+
+  @@index([organizationId])
+  @@map("courses")
+}
+
+model ClassGroup {
+  id             String       @id @default(cuid())
+  organizationId String       @map("organization_id")
+  unitId         String       @map("unit_id")
+  courseId       String       @map("course_id")
+  code           String       // Ex: "TURMA-2026-OUT"
+  startDate      DateTime     @map("start_date")
+  endDate        DateTime     @map("end_date")
+  maxCapacity    Int          @default(15) @map("max_capacity")
+  active         Boolean      @default(true)
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  unit           Unit         @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  course         Course       @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  enrollments    Enrollment[]
+
+  @@index([organizationId, unitId])
+  @@index([courseId])
+  @@map("class_groups")
+}
+
+model Enrollment {
+  id             String           @id @default(cuid())
+  organizationId String           @map("organization_id")
+  classGroupId   String           @map("class_group_id")
+  contactId      String           @map("contact_id")
+  status         EnrollmentStatus @default(PROSPECT)
+  priceInCents   Int              @map("price_in_cents")
+  createdAt      DateTime         @default(now()) @map("created_at")
+  updatedAt      DateTime         @updatedAt @map("updated_at")
+
+  organization   Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  classGroup     ClassGroup       @relation(fields: [classGroupId], references: [id], onDelete: Cascade)
+  contact        Contact          @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  attendances    StudentAttendance[]
+
+  @@index([organizationId, classGroupId])
+  @@index([contactId])
+  @@map("enrollments")
+}
+
+model StudentAttendance {
+  id           String     @id @default(cuid())
+  enrollmentId String     @map("enrollment_id")
+  sessionDate  DateTime   @map("session_date")
+  present      Boolean    @default(true)
+  notes        String?
+
+  enrollment   Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+
+  @@index([enrollmentId, sessionDate])
+  @@map("student_attendances")
+}
+
+// -----------------------------------------------------------------------------
+// CONTATOS, CONVERSAS E WHATSAPP
+// -----------------------------------------------------------------------------
+
+model Contact {
+  id             String        @id @default(cuid())
+  organizationId String        @map("organization_id")
+  name           String
+  phone          String        // Ex: "5541999999999"
+  email          String?
+  notes          String?       @db.Text
+  createdAt      DateTime      @default(now()) @map("created_at")
+  updatedAt      DateTime      @updatedAt @map("updated_at")
+
+  organization   Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  appointments   Appointment[]
+  orders         Order[]
+  enrollments    Enrollment[]
+  conversations  Conversation[]
+
+  @@unique([organizationId, phone])
+  @@index([organizationId, phone])
+  @@map("contacts")
+}
+
+model Conversation {
+  id             String        @id @default(cuid())
+  organizationId String        @map("organization_id")
+  contactId      String        @map("contact_id")
+  channelType    ChannelType   @default(WHATSAPP_OFFICIAL) @map("channel_type")
+  status         String        @default("BOT") // 'BOT' | 'HUMAN' | 'CLOSED'
+  lastMessageAt  DateTime      @default(now()) @map("last_message_at")
+  createdAt      DateTime      @default(now()) @map("created_at")
+  updatedAt      DateTime      @updatedAt @map("updated_at")
+
+  organization   Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  contact        Contact       @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  messages       Message[]
+
+  @@index([organizationId, contactId])
+  @@index([lastMessageAt])
+  @@map("conversations")
+}
+
+model Message {
+  id             String       @id @default(cuid())
+  conversationId String       @map("conversation_id")
+  direction      String       @default("INBOUND") // 'INBOUND' | 'OUTBOUND'
+  senderType     String       @default("CLIENT")  // 'CLIENT' | 'BOT' | 'HUMAN_AGENT'
+  content        String       @db.Text
+  mediaUrl       String?      @map("media_url")
+  wamid          String?      @unique
+  status         String       @default("SENT")    // 'PENDING' | 'SENT' | 'DELIVERED' | 'READ' | 'FAILED'
+  createdAt      DateTime     @default(now()) @map("created_at")
+
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId, createdAt])
+  @@map("messages")
+}
+
+// -----------------------------------------------------------------------------
+// AUDITORIA E OUTBOX
+// -----------------------------------------------------------------------------
+
+model AuditEvent {
+  id             String       @id @default(cuid())
+  organizationId String       @map("organization_id")
+  unitId         String?      @map("unit_id")
+  actorId        String?      @map("actor_id")
+  action         String
+  entityType     String       @map("entity_type")
+  entityId       String       @map("entity_id")
+  metadata       Json?
+  ipAddress      String?      @map("ip_address")
+  createdAt      DateTime     @default(now()) @map("created_at")
+
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  unit           Unit?        @relation(fields: [unitId], references: [id], onDelete: SetNull)
+
+  @@index([organizationId, createdAt])
+  @@index([entityType, entityId])
+  @@map("audit_events")
+}
+
+model OutboxMessage {
+  id             String       @id @default(cuid())
+  organizationId String       @map("organization_id")
+  channelId      String       @map("channel_id")
+  recipient      String
+  payload        Json
+  status         OutboxStatus @default(PENDING)
+  attempts       Int          @default(0)
+  scheduledFor   DateTime     @default(now()) @map("scheduled_for")
+  sentAt         DateTime?    @map("sent_at")
+  lastError      String?      @map("last_error") @db.Text
+  createdAt      DateTime     @default(now()) @map("created_at")
+
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([status, scheduledFor])
+  @@index([organizationId])
+  @@map("outbox_messages")
+}

@@ -1,0 +1,12 @@
+User-Agent: *
+Allow: /
+
+User-Agent: ChatGPT-User
+User-Agent: GPTBot
+User-Agent: Google-Extended
+User-Agent: ClaudeBot
+User-Agent: PerplexityBot
+User-Agent: Applebot
+Allow: /
+
+Sitemap: https://ivancnogueira.github.io/bia-360/vendas/sitemap.xml

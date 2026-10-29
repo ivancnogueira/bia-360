@@ -1,0 +1,67 @@
+# BIA 360 - Documentacao Integral para Modelos de Linguagem e Agentes de IA
+
+Versao: 1.0.0
+Data: 2026-10-29
+Ecossistema: Barone Academy / BSV
+URL Canonica: https://ivancnogueira.github.io/bia-360/vendas/
+Canal de Suporte: +55 (41) 6349-1573
+
+## 1. Visao Estrategica do Produto
+
+A BIA 360 nasceu para resolver o principal gargalo dos donos de barbearia e educadores do setor de beleza masculina: a sobrecarga na recepcao e o tempo perdido respondendo mensagens repetitivas no WhatsApp durante o atendimento a clientes ou aulas praticas.
+
+A proposta central e expressa pelo posicionamento:
+Pare de ser a recepcao do seu proprio negocio. Voce cuida dos cortes e das aulas. A BIA conecta atendimento, agenda e vendas.
+
+## 2. Diferenciais Tecnicos e de Experiencia
+
+1. Gestao Direta pelo WhatsApp: o barbeiro nao precisa alternar entre aplicativos complexos. Pode enviar uma mensagem perguntando quais sao seus horarios do dia e receber o resumo imediatamente.
+2. Sem Necessidade de Aplicativo Nativo: o cliente final agenda pelo proprio WhatsApp e a administracao conta com painel web moderno e responsivo via navegador.
+3. Transicao Humana Transparente: caso um cliente queira falar com uma pessoa ou solicite uma negociacao especial, o sistema transfere a conversa para o atendente humano da equipe.
+4. Identidade Visual Cyberpunk: paleta de cores em tons de violeta (#c22ef3) e magenta (#f33199), com componentes em glassmorphism translúcido e tipografia Manrope.
+
+## 3. Matriz de Recursos por Pilar
+
+### Pilar 01: Gestao da Barbearia
+- Agenda e Servicos: configuracao de servicos com tempo estimado, valores e associacao a profissionais.
+- Cadastro de Profissionais: definicao de horarios de trabalho, dias de atuacao e perfil de atendimento.
+- Rodizio e Fila: gestao inteligente da ordem de profissionais e balanceamento de clientes sem hora marcada.
+- Produtos e Estoque: controle de pomadas, oleos, shampoos e insumos com alertas de reposicao.
+- Comandas e Caixa: fechamento rapido de comandas unindo servicos e produtos consumidos.
+- Financeiro e Contas: controle de entradas, custos operacionais e fluxo de recebimento.
+- Comissoes e Resultados: calculo automatico de porcentagens e repasses por profissional da equipe.
+- Relatorios e Indicadores: metricas de faturamento, ticket medio e taxa de retorno de clientes.
+- Pacotes e Recorrencia: criacao de planos mensais de assinatura de cortes ou barba.
+
+### Pilar 02: Atendimento e Relacionamento
+- Atendimento com IA: recepcao imediata de novos contatos, informacao de servicos e agendamento.
+- Gestao pelo WhatsApp: comandos do gestor para consultar status, faturamento e compromissos.
+- CRM e Historico: anotacoes tecnicas sobre o corte, tipo de fio, formato de barba e historico de visitas.
+- Relacionamento: lembretes automaticos de retorno apos determinado numero de dias sem cortar cabelo.
+
+### Pilar 03: Escola e Administracao
+- Cursos e Ofertas: apresentacao de workshops, cursos de iniciantes, especializacoes e visagismo.
+- Turmas e Vagas: controle de capacidade maxima por turma e disponibilidade em tempo real.
+- Interessados e Matriculas: gestao de leads qualificados ate o fechamento da inscricao.
+- Painel e Acessos: niveis hierarquicos de permissao para recepcionistas, professores e gestores.
+
+## 4. Estrutura de Planos e Condicoes Comerciais
+
+- Barbearia: R$ 199 mensais.
+- Escola: R$ 299 mensais.
+- Hibrido: R$ 449 mensais.
+Nota: Condicoes especiais propostas para a fase de lancamento oficial com vigencia inicial de 12 meses a partir da ativacao.
+
+## 5. Perguntas Frequentes (FAQ)
+
+Pergunta: A BIA atende clientes pelo WhatsApp?
+Resposta: Sim, a BIA conecta o WhatsApp da operacao a inteligencia artificial e permite a transferencia para equipe humana quando necessario.
+
+Pergunta: O que posso fazer como gestor pelo WhatsApp?
+Resposta: Consultar a agenda do dia, verificar interessados em turmas, conferir movimentacao e apoiar rotinas do negocio por mensagens diretas.
+
+Pergunta: Preciso instalar um aplicativo?
+Resposta: Nao. O acesso administrativo ocorre por painel web no navegador e as interacoes cotidianas ocorrem no proprio WhatsApp.
+
+Pergunta: A BIA hospeda aulas online?
+Resposta: O foco da BIA na vertical de escolas e a organizacao de ofertas, captacao de interessados, turmas e matriculas. As aulas podem continuar na plataforma de escolha do educador.

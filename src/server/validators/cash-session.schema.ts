@@ -36,3 +36,4 @@ export const CreateFinancialEntrySchema = z.object({
 export type OpenCashSessionInput = z.infer<typeof OpenCashSessionSchema>;
 export type CloseCashSessionInput = z.infer<typeof CloseCashSessionSchema>;
 export type CreateFinancialEntryInput = z.infer<typeof CreateFinancialEntrySchema>;
+

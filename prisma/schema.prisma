@@ -102,6 +102,7 @@ model Organization {
   courses           Course[]
   classGroups       ClassGroup[]
   enrollments       Enrollment[]
+  certificates      Certificate[]
   contacts          Contact[]
   conversations     Conversation[]
   auditEvents       AuditEvent[]
@@ -480,6 +481,7 @@ model Enrollment {
   classGroup     ClassGroup       @relation(fields: [classGroupId], references: [id], onDelete: Cascade)
   contact        Contact          @relation(fields: [contactId], references: [id], onDelete: Cascade)
   attendances    StudentAttendance[]
+  certificate    Certificate?
 
   @@index([organizationId, classGroupId])
   @@index([contactId])
@@ -497,6 +499,21 @@ model StudentAttendance {
 
   @@index([enrollmentId, sessionDate])
   @@map("student_attendances")
+}
+
+model Certificate {
+  id               String       @id @default(cuid())
+  organizationId   String       @map("organization_id")
+  enrollmentId     String       @unique @map("enrollment_id")
+  verificationCode String       @unique @map("verification_code")
+  issuedAt         DateTime     @default(now()) @map("issued_at")
+  attendanceRate   Int          @map("attendance_rate") // Porcentagem inteira (ex: 85 para 85%)
+
+  organization     Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  enrollment       Enrollment   @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId, verificationCode])
+  @@map("certificates")
 }
 
 // -----------------------------------------------------------------------------

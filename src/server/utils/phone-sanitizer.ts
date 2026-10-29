@@ -92,3 +92,4 @@ export function sanitizeCustomerName(name: string): string {
     })
     .join(" ");
 }
+

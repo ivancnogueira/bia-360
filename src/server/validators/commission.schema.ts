@@ -20,3 +20,4 @@ export const SettleCommissionSchema = z.object({
 
 export type CalculateCommissionFilterInput = z.infer<typeof CalculateCommissionFilterSchema>;
 export type SettleCommissionInput = z.infer<typeof SettleCommissionSchema>;
+

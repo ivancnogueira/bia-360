@@ -42,3 +42,4 @@ export const AdjustStockSchema = z.object({
 export type CreateProductInput = z.infer<typeof CreateProductSchema>;
 export type UpdateProductInput = z.infer<typeof UpdateProductSchema>;
 export type AdjustStockInput = z.infer<typeof AdjustStockSchema>;
+

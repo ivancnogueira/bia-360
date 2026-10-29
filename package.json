@@ -12,6 +12,7 @@
     "typecheck:server": "tsc --noEmit",
     "test:tenant": "tsx src/server/tests/tenant-isolation.test.ts",
     "test:barber": "tsx src/server/tests/all-barber-tests.ts",
+    "test:academy": "tsx src/server/tests/all-academy-tests.ts",
     "prisma:generate": "prisma generate",
     "prisma:push": "prisma db push"
   },

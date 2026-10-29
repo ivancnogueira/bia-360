@@ -21,3 +21,4 @@ for (const file of testFiles) {
 }
 
 console.log("Todos os testes da Fase 02 foram executados com sucesso total!");
+

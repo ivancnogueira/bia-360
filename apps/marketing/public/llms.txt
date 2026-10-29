@@ -1,0 +1,34 @@
+# BIA 360
+
+> Plataforma com inteligencia artificial para barbearias, barbeiros profissionais e escolas de visagismo.
+
+## O que e a BIA 360
+
+A BIA 360 e uma plataforma completa que combina atendimento inteligente pelo WhatsApp, agenda de servicos por profissional, cadastro de clientes com CRM, gestao operacional e administracao de turmas para escolas de formacao profissional. Foi desenvolvida no ecossistema da Barone Academy.
+
+## Publico-Alvo
+
+- Barbearias: profissionais e donos de estabelecimentos que buscam automatizar o agendamento de servicos e o atendimento a clientes sem perder o toque humano.
+- Escolas de Barbeiros: centros de formacao e educadores que necessitam divulgar cursos, organizar turmas, controlar vagas e acompanhar potenciais alunos.
+- Operacoes Hibridas: negocios que unem a cadeira de atendimento a sala de aula na mesma gestao.
+
+## Principais Recursos
+
+- Atendimento com Inteligencia Artificial: acolhe mensagens no WhatsApp 24 horas por dia, entende intencoes de agendamento e permite transferencia para atendente humano.
+- Gestao pelo WhatsApp: o proprietario ou profissional pode consultar sua agenda, clientes e resultados enviando mensagens de texto ou voz para a BIA.
+- Agenda e Servicos: configuracao de horarios, duracao, valores e comissoes por profissional.
+- CRM e Historico: ficha completa do cliente com frequencia, servicos anteriores e preferencias.
+- Gestao Escolar: catalogo de cursos, datas, organizacao de turmas, controle de vagas e acompanhamento do funil de interessados.
+- Financeiro e Comandas: fluxo de caixa, lancamentos, comandas e calculo automatico de comissoes.
+
+## Planos e Precos (Condicao Proposta de Lancamento)
+
+- Plano Barbearia: R$ 199 por mes. Inclui atendimento com IA, agenda integrada, CRM de clientes e gestao pelo WhatsApp.
+- Plano Escola: R$ 299 por mes. Inclui catalogo de cursos, gestao de turmas, controle de vagas e funil de interessados.
+- Plano Hibrido: R$ 449 por mes. Inclui todos os recursos de barbearia e escola em uma unica plataforma integrada.
+
+## Links Oficiais
+
+- Pagina Oficial de Vendas: https://ivancnogueira.github.io/bia-360/vendas/
+- Suporte Oficial no WhatsApp: https://wa.me/554163491573
+- Documentacao Completa para LLMs: https://ivancnogueira.github.io/bia-360/vendas/llms-full.txt

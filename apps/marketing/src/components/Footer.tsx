@@ -1,0 +1,4 @@
+import { asset, supportWhatsApp } from '../data/product';
+export function Footer() {
+  return <footer className="footer"><div className="footer-main"><div><img className="logo" src={asset('/images/logo.png')} alt="BIA 360" /><p>Inteligência para quem transforma.</p></div><div className="footer-links"><a href="#como-funciona">Como funciona</a><a href="#recursos">Recursos</a><a href="#planos">Planos</a><a href="#duvidas">Dúvidas</a></div><div id="suporte" className="footer-support"><span>SUPORTE</span><a href={supportWhatsApp} target="_blank" rel="noopener noreferrer">WhatsApp +55 (41) 6349-1573</a></div><a className="footer-top" href="#inicio">Voltar ao início ↑</a></div><div className="footer-bottom"><span>BIA 360 · ECOSSISTEMA BARONE</span><span>INTELIGÊNCIA PARA O SEU NEGÓCIO</span></div></footer>;
+}

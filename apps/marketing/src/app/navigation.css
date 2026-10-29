@@ -1,0 +1,27 @@
+.header { height: var(--header-height); display: flex; align-items: center; justify-content: space-between; padding-inline: 5%; border-bottom: 1px solid #c59bff23; position: sticky; top: 0; z-index: 20; background: #08070ddd; backdrop-filter: blur(18px); }
+.logo { display: block; width: 116px; height: 45px; object-fit: contain; }
+.header nav { display: flex; gap: clamp(16px, 2vw, 32px); font-size: 11px; font-weight: 500; }
+.header nav a { color: #b9adc6; transition: color .2s; }
+.header nav a:hover { color: #f176df; }
+.header-actions { display: flex; align-items: center; gap: 12px; }
+.menu-toggle { display: none; background: transparent; border: 1px solid #be7bf84d; color: #f6eaff; width: 44px; height: 44px; align-items: center; justify-content: center; border-radius: 5px; cursor: pointer; }
+.section-previews { padding: 55px 6% 90px; max-width: 1440px; margin: auto; }
+.preview-caption { color: #907aab; font-size: 9px; letter-spacing: 1.6px; margin: 0 0 30px; }
+.section-preview { scroll-margin-top: 12px; padding: 30px; border: 1px solid #b95ce42b; background: linear-gradient(120deg, #a03ade08, transparent); margin-bottom: 16px; border-radius: 10px; }
+.preview-status { font-size: 8px; letter-spacing: 1.4px; color: #af78cb; }
+.section-preview h2 { font-size: 28px; margin: 12px 0 5px; letter-spacing: -1px; }
+.section-preview p { font-size: 13px; color: #a99bb7; }
+.section-preview a { font-size: 10px; color: #dcb2f1; }
+@media (max-width: 900px) {
+  .menu-toggle { display: flex; }
+  .header nav { display: none; position: absolute; top: 100%; left: 0; right: 0; background: #100b19f5; border-bottom: 1px solid #b552e54a; padding: 16px 6%; backdrop-filter: blur(20px); max-height: calc(100svh - var(--header-height)); overflow-y: auto; }
+  .header nav.is-open { display: grid; grid-template-columns: 1fr 1fr; gap: 0 12px; }
+  .header nav a { display: flex; align-items: center; min-height: 44px; font-size: 13px; }
+}
+@media (max-width: 640px) {
+  .header { padding-inline: 6%; }
+  .header .logo { width: 91px; }
+  .button.small { font-size: 9px; padding: 11px 14px; min-height: 44px; }
+  .section-preview { padding: 23px; }
+  .section-preview h2 { font-size: 24px; }
+}

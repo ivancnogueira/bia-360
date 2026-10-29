@@ -1,0 +1,8 @@
+.planning/
+.planning
+node_modules/
+.next/
+out/
+.env*
+!.env.example
+*.tsbuildinfo

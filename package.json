@@ -8,6 +8,7 @@
   "scripts": {
     "dev": "npm run dev --workspace=@bia/marketing",
     "build": "npm run build --workspace=@bia/marketing",
+    "start": "npm run start --workspace=@bia/marketing",
     "typecheck": "npm run typecheck --workspace=@bia/marketing",
     "typecheck:server": "tsc --noEmit",
     "test:tenant": "tsx src/server/tests/tenant-isolation.test.ts",

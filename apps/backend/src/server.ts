@@ -1,6 +1,11 @@
+import path from "node:path";
 import express, { Request, Response } from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+
+dotenv.config();
+dotenv.config({ path: path.resolve(__dirname, "../.env") });
+dotenv.config({ path: path.resolve(__dirname, "../../.env") });
 import { WebhookSecurity } from "./whatsapp/WebhookSecurity";
 import { WebhookDispatcher } from "./whatsapp/WebhookDispatcher";
 import { ServiceDomainService } from "./services/ServiceDomainService";

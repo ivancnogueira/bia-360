@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import { WebhookSecurity } from "./whatsapp/WebhookSecurity";
 import { WebhookDispatcher } from "./whatsapp/WebhookDispatcher";
 import { ServiceDomainService } from "./services/ServiceDomainService";
+import { ServiceCategoryService } from "./services/ServiceCategoryService";
 import { AvailabilityEngine } from "./services/AvailabilityEngine";
 import { AppointmentService } from "./services/AppointmentService";
 import { ProfessionalService } from "./services/ProfessionalService";
@@ -65,7 +66,43 @@ app.post("/api/v1/whatsapp/webhook", async (req: Request, res: Response) => {
   }
 });
 
-// 4. Rotas de Servicos e Barbearia
+// 4. Rotas de Categorias de Servicos (PostgreSQL Dinamico)
+app.get("/api/v1/service-categories", async (req: Request, res: Response) => {
+  const organizationId = (req.query.organizationId as string) || "org-barone-matriz";
+  try {
+    const categories = await ServiceCategoryService.listByOrganization(organizationId);
+    return res.json({ data: categories });
+  } catch (err: any) {
+    return res.status(400).json({ error: err.message });
+  }
+});
+
+app.post("/api/v1/service-categories", async (req: Request, res: Response) => {
+  const organizationId = (req.body.organizationId as string) || "org-barone-matriz";
+  try {
+    const created = await ServiceCategoryService.create({
+      organizationId,
+      name: req.body.name,
+      description: req.body.description,
+      color: req.body.color,
+    });
+    return res.status(201).json({ data: created });
+  } catch (err: any) {
+    return res.status(400).json({ error: err.message });
+  }
+});
+
+app.delete("/api/v1/service-categories/:id", async (req: Request, res: Response) => {
+  const organizationId = (req.query.organizationId as string) || (req.body.organizationId as string) || "org-barone-matriz";
+  try {
+    await ServiceCategoryService.delete(req.params.id, organizationId);
+    return res.json({ success: true });
+  } catch (err: any) {
+    return res.status(400).json({ error: err.message });
+  }
+});
+
+// 4.1 Rotas de Servicos e Barbearia
 app.get("/api/v1/services", async (req: Request, res: Response) => {
   const organizationId = (req.query.organizationId as string) || "org-barone-matriz";
   try {
@@ -86,6 +123,7 @@ app.post("/api/v1/services", async (req: Request, res: Response) => {
       durationMinutes: Number(req.body.durationMinutes) || 30,
       priceInCents: Number(req.body.priceInCents) || 5000,
       category: req.body.category || "corte",
+      categoryId: req.body.categoryId,
       bufferBeforeMinutes: Number(req.body.bufferBeforeMinutes) || 0,
       bufferAfterMinutes: Number(req.body.bufferAfterMinutes) || 0,
       color: req.body.color || "#3B82F6",

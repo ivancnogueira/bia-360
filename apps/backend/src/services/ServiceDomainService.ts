@@ -22,6 +22,7 @@ export class ServiceDomainService {
         durationMinutes: validated.durationMinutes,
         priceInCents: validated.priceInCents,
         category: validated.category,
+        categoryId: validated.categoryId || null,
         bufferBeforeMinutes: validated.bufferBeforeMinutes,
         bufferAfterMinutes: validated.bufferAfterMinutes,
         color: validated.color,
@@ -52,6 +53,7 @@ export class ServiceDomainService {
         ...(options?.activeOnly !== false ? { active: true } : {}),
       },
       include: {
+        serviceCategory: true,
         professionals: {
           include: {
             professional: {
@@ -74,6 +76,7 @@ export class ServiceDomainService {
         organizationId,
       },
       include: {
+        serviceCategory: true,
         professionals: {
           include: {
             professional: {

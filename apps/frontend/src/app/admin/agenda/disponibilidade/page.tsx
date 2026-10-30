@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import Link from "next/link";
 import {
   Calendar,
   Clock,
@@ -9,12 +8,8 @@ import {
   Trash2,
   Save,
   Check,
-  ChevronDown,
-  ArrowLeft,
   AlertCircle,
   Coffee,
-  ShieldCheck,
-  UserCheck,
 } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
 import { toast } from "@/lib/toast";
@@ -94,17 +89,17 @@ function CustomTimePicker({
         type="button"
         disabled={disabled}
         onClick={() => setIsOpen(!isOpen)}
-        className={`flex items-center justify-between bg-[#0B0D11] border border-white/10 hover:border-[#c22ef3]/50 rounded-xl h-9 px-3 w-28 text-xs transition-all ${
-          disabled ? "opacity-50 cursor-not-allowed" : "text-white cursor-pointer"
+        className={`flex items-center justify-between bg-slate-100 dark:bg-[#0B0D11] border border-gray-200 dark:border-white/10 hover:border-[#c22ef3]/50 rounded-xl h-9 px-3 w-28 text-xs transition-all ${
+          disabled ? "opacity-50 cursor-not-allowed" : "text-gray-900 dark:text-white cursor-pointer"
         }`}
       >
         <span className="font-bold tracking-tight">{value}</span>
-        <Clock className="w-3.5 h-3.5 text-gray-500" />
+        <Clock className="w-3.5 h-3.5 text-gray-400 dark:text-gray-500" />
       </button>
 
       {isOpen && (
-        <div className="absolute z-50 mt-1 w-28 bg-[#14171C] border border-white/15 rounded-xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-          <div className="max-h-56 overflow-y-auto p-1 scrollbar-thin scrollbar-thumb-white/20">
+        <div className="absolute z-50 mt-1 w-28 bg-white dark:bg-[#14171C] border border-gray-200 dark:border-white/15 rounded-xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+          <div className="max-h-56 overflow-y-auto p-1 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-white/20">
             {TIME_OPTIONS.map((time) => (
               <button
                 type="button"
@@ -116,7 +111,7 @@ function CustomTimePicker({
                 className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
                   value === time
                     ? "bg-[#c22ef3] text-white font-bold"
-                    : "text-gray-300 hover:bg-white/10 hover:text-white"
+                    : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/10 hover:text-gray-900 dark:hover:text-white"
                 }`}
               >
                 {time}
@@ -346,33 +341,18 @@ export default function DisponibilidadeAgendaPage() {
   return (
     <div className="space-y-6">
       {/* Top Header */}
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-white/10 pb-6">
-        <div className="flex items-center gap-3">
-          <Link
-            href="/admin/agenda"
-            className="p-2.5 bg-[#14171C] hover:bg-[#1D2128] border border-white/10 rounded-xl text-white transition-colors"
-            title="Voltar para a Agenda"
-          >
-            <ArrowLeft className="w-5 h-5 text-gray-400" />
-          </Link>
-          <div>
-            <h1 className="text-2xl font-black text-white tracking-tight flex items-center gap-2">
-              <Clock className="w-6 h-6 text-[#c22ef3]" />
-              Gestão de Escalas & Disponibilidade
-            </h1>
-            <p className="text-xs text-[#baacc7] mt-0.5">
-              Defina as jornadas semanais de atendimento, intervalos de almoço e bloqueios pontuais por profissional.
-            </p>
-          </div>
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-gray-200 dark:border-white/10 pb-6">
+        <div>
+          <h1 className="text-2xl font-black text-gray-900 dark:text-white tracking-tight flex items-center gap-2">
+            <Clock className="w-6 h-6 text-[#c22ef3]" />
+            Gestão de Escalas & Disponibilidade
+          </h1>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+            Defina as jornadas semanais de atendimento, intervalos de almoço e bloqueios pontuais por profissional.
+          </p>
         </div>
 
         <div className="flex items-center gap-3 w-full md:w-auto">
-          <Link
-            href="/admin/agenda/servicos"
-            className="px-4 py-2.5 rounded-xl border border-white/10 bg-[#14171C] hover:bg-[#1D2128] text-xs font-bold text-gray-300 hover:text-white transition-all"
-          >
-            Catálogo de Serviços
-          </Link>
           <button
             onClick={handleSaveSchedules}
             disabled={isSaving}
@@ -385,8 +365,8 @@ export default function DisponibilidadeAgendaPage() {
       </div>
 
       {/* Seletor de Barbeiro */}
-      <div className="bg-[#14171C] border border-white/10 rounded-2xl p-5 shadow-sm">
-        <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 block mb-2">
+      <div className="bg-white dark:bg-[#14171C] border border-gray-200 dark:border-white/10 rounded-2xl p-5 shadow-xs transition-colors">
+        <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 dark:text-gray-400 block mb-2">
           Selecione o Barbeiro / Profissional para Ajustar a Grade
         </label>
         <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
@@ -398,8 +378,8 @@ export default function DisponibilidadeAgendaPage() {
                 onClick={() => setSelectedProfId(prof.id)}
                 className={`flex items-center gap-2.5 px-4 py-2.5 rounded-xl border text-xs font-bold whitespace-nowrap transition-all ${
                   isSelected
-                    ? "bg-[#c22ef3]/20 border-[#c22ef3] text-white shadow-md shadow-[#c22ef3]/10"
-                    : "bg-[#0B0D11] border-white/10 text-gray-400 hover:text-white hover:border-white/20"
+                    ? "bg-[#c22ef3]/15 border-[#c22ef3] text-gray-900 dark:text-white shadow-xs"
+                    : "bg-slate-100 dark:bg-[#0B0D11] border-gray-200 dark:border-white/10 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-white/20"
                 }`}
               >
                 <div
@@ -415,19 +395,19 @@ export default function DisponibilidadeAgendaPage() {
       </div>
 
       {/* Grade Semanal */}
-      <div className="bg-[#14171C] border border-white/10 rounded-2xl p-6 shadow-sm">
-        <div className="flex items-center justify-between mb-6 pb-4 border-b border-white/5">
+      <div className="bg-white dark:bg-[#14171C] border border-gray-200 dark:border-white/10 rounded-2xl p-6 shadow-xs transition-colors">
+        <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-100 dark:border-white/5">
           <div>
-            <h2 className="text-base font-black text-white tracking-tight flex items-center gap-2">
+            <h2 className="text-base font-black text-gray-900 dark:text-white tracking-tight flex items-center gap-2">
               <Calendar className="w-5 h-5 text-[#c22ef3]" />
               Jornada Semanal de Atendimento
             </h2>
-            <p className="text-xs text-gray-400 mt-0.5">
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
               Horários de início, término e intervalo de descanso para{" "}
-              <strong className="text-white">{currentProf?.name || "o profissional"}</strong>.
+              <strong className="text-gray-900 dark:text-white">{currentProf?.name || "o profissional"}</strong>.
             </p>
           </div>
-          <span className="text-xs font-bold px-3 py-1 bg-white/5 border border-white/10 rounded-xl text-gray-300">
+          <span className="text-xs font-bold px-3 py-1 bg-slate-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl text-gray-600 dark:text-gray-300">
             Fuso: America/São Paulo (-03:00)
           </span>
         </div>
@@ -450,8 +430,8 @@ export default function DisponibilidadeAgendaPage() {
                 key={dia.id}
                 className={`p-4 rounded-xl border transition-all ${
                   item.active
-                    ? "bg-[#0B0D11] border-white/10"
-                    : "bg-[#0B0D11]/40 border-white/5 opacity-60"
+                    ? "bg-slate-50 dark:bg-[#0B0D11] border-gray-200 dark:border-white/10"
+                    : "bg-slate-50/50 dark:bg-[#0B0D11]/40 border-gray-100 dark:border-white/5 opacity-60"
                 }`}
               >
                 <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
@@ -461,7 +441,7 @@ export default function DisponibilidadeAgendaPage() {
                       type="button"
                       onClick={() => handleToggleDay(dia.id)}
                       className={`w-11 h-6 rounded-full transition-colors relative p-0.5 ${
-                        item.active ? "bg-[#c22ef3]" : "bg-white/15"
+                        item.active ? "bg-[#c22ef3]" : "bg-gray-300 dark:bg-white/15"
                       }`}
                     >
                       <div
@@ -470,19 +450,19 @@ export default function DisponibilidadeAgendaPage() {
                         }`}
                       />
                     </button>
-                    <span className="font-bold text-sm text-white">{dia.label}</span>
+                    <span className="font-bold text-sm text-gray-900 dark:text-white">{dia.label}</span>
                   </div>
 
                   {/* Horário Principal de Trabalho */}
                   {item.active ? (
                     <div className="flex flex-wrap items-center gap-3">
                       <div className="flex items-center gap-2">
-                        <span className="text-xs text-gray-400">Das</span>
+                        <span className="text-xs text-gray-500 dark:text-gray-400">Das</span>
                         <CustomTimePicker
                           value={item.startTime}
                           onChange={(val) => handleUpdateSchedule(dia.id, "startTime", val)}
                         />
-                        <span className="text-xs text-gray-400">às</span>
+                        <span className="text-xs text-gray-500 dark:text-gray-400">às</span>
                         <CustomTimePicker
                           value={item.endTime}
                           onChange={(val) => handleUpdateSchedule(dia.id, "endTime", val)}
@@ -490,14 +470,14 @@ export default function DisponibilidadeAgendaPage() {
                       </div>
 
                       {/* Intervalo de Almoço / Pausa */}
-                      <div className="flex items-center gap-2 pl-2 lg:border-l border-white/10">
+                      <div className="flex items-center gap-2 pl-2 lg:border-l border-gray-200 dark:border-white/10">
                         <button
                           type="button"
                           onClick={() => handleToggleBreak(dia.id)}
                           className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
                             item.hasBreak
-                              ? "bg-amber-500/15 text-amber-400 border border-amber-500/30"
-                              : "bg-white/5 text-gray-400 hover:text-white"
+                              ? "bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30"
+                              : "bg-slate-200/60 dark:bg-white/5 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
                           }`}
                         >
                           <Coffee className="w-3.5 h-3.5" />
@@ -510,7 +490,7 @@ export default function DisponibilidadeAgendaPage() {
                               value={item.breakStartTime}
                               onChange={(val) => handleUpdateSchedule(dia.id, "breakStartTime", val)}
                             />
-                            <span className="text-xs text-gray-500">às</span>
+                            <span className="text-xs text-gray-400 dark:text-gray-500">às</span>
                             <CustomTimePicker
                               value={item.breakEndTime}
                               onChange={(val) => handleUpdateSchedule(dia.id, "breakEndTime", val)}
@@ -520,7 +500,7 @@ export default function DisponibilidadeAgendaPage() {
                       </div>
                     </div>
                   ) : (
-                    <span className="text-xs text-gray-500 italic">Folga / Não atende neste dia</span>
+                    <span className="text-xs text-gray-400 dark:text-gray-500 italic">Folga / Não atende neste dia</span>
                   )}
                 </div>
               </div>
@@ -530,34 +510,34 @@ export default function DisponibilidadeAgendaPage() {
       </div>
 
       {/* Exceções e Folgas Pontuais por Data */}
-      <div className="bg-[#14171C] border border-white/10 rounded-2xl p-6 shadow-sm">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-4 border-b border-white/5">
+      <div className="bg-white dark:bg-[#14171C] border border-gray-200 dark:border-white/10 rounded-2xl p-6 shadow-xs transition-colors">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-4 border-b border-gray-100 dark:border-white/5">
           <div>
-            <h2 className="text-base font-black text-white tracking-tight flex items-center gap-2">
-              <AlertCircle className="w-5 h-5 text-amber-400" />
+            <h2 className="text-base font-black text-gray-900 dark:text-white tracking-tight flex items-center gap-2">
+              <AlertCircle className="w-5 h-5 text-amber-500 dark:text-amber-400" />
               Exceções & Folgas Pontuais (Data Específica)
             </h2>
-            <p className="text-xs text-gray-400 mt-0.5">
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
               Bloqueie feriados, atestados médicos ou folgas pontuais sem alterar a escala semanal regular.
             </p>
           </div>
         </div>
 
         {/* Formulário Rápido de Adição */}
-        <form onSubmit={handleAddException} className="flex flex-col sm:flex-row items-center gap-3 mb-6 bg-[#0B0D11] p-3 rounded-xl border border-white/5">
+        <form onSubmit={handleAddException} className="flex flex-col sm:flex-row items-center gap-3 mb-6 bg-slate-50 dark:bg-[#0B0D11] p-3 rounded-xl border border-gray-200 dark:border-white/5">
           <input
             type="date"
             required
             value={newExceptionDate}
             onChange={(e) => setNewExceptionDate(e.target.value)}
-            className="bg-[#14171C] border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-[#c22ef3] w-full sm:w-auto"
+            className="bg-white dark:bg-[#14171C] border border-gray-200 dark:border-white/10 rounded-xl px-3 py-2 text-xs text-gray-900 dark:text-white focus:outline-none focus:border-[#c22ef3] w-full sm:w-auto"
           />
           <input
             type="text"
             placeholder="Motivo (ex: Feriado Nacional, Consulta Médica, Treinamento)"
             value={newExceptionReason}
             onChange={(e) => setNewExceptionReason(e.target.value)}
-            className="bg-[#14171C] border border-white/10 rounded-xl px-4 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-[#c22ef3] flex-1 w-full"
+            className="bg-white dark:bg-[#14171C] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2 text-xs text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:border-[#c22ef3] flex-1 w-full"
           />
           <button
             type="submit"
@@ -571,7 +551,7 @@ export default function DisponibilidadeAgendaPage() {
 
         {/* Tabela de Exceções Cadastradas */}
         {exceptions.length === 0 ? (
-          <p className="text-xs text-gray-500 italic text-center py-6">
+          <p className="text-xs text-gray-400 dark:text-gray-500 italic text-center py-6">
             Nenhuma folga ou exceção registrada para este barbeiro.
           </p>
         ) : (
@@ -579,15 +559,15 @@ export default function DisponibilidadeAgendaPage() {
             {exceptions.map((exc) => (
               <div
                 key={exc.id}
-                className="bg-[#0B0D11] border border-white/5 rounded-xl p-3 flex items-center justify-between text-xs"
+                className="bg-slate-50 dark:bg-[#0B0D11] border border-gray-200 dark:border-white/5 rounded-xl p-3 flex items-center justify-between text-xs"
               >
                 <div>
-                  <span className="font-black text-amber-400 block">{exc.date}</span>
-                  <span className="text-gray-400 text-[11px]">{exc.reason || "Bloqueio Integral"}</span>
+                  <span className="font-black text-amber-600 dark:text-amber-400 block">{exc.date}</span>
+                  <span className="text-gray-600 dark:text-gray-400 text-[11px]">{exc.reason || "Bloqueio Integral"}</span>
                 </div>
                 <button
                   onClick={() => handleDeleteException(exc.id)}
-                  className="p-1.5 text-gray-500 hover:text-red-400 hover:bg-white/5 rounded-lg transition-colors"
+                  className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-gray-100 dark:hover:bg-white/5 rounded-lg transition-colors"
                   title="Remover Bloqueio"
                 >
                   <Trash2 className="w-4 h-4" />

@@ -109,6 +109,7 @@ model Organization {
   outboxMessages    OutboxMessage[]
   whatsappChannels  WhatsAppChannel[]
   scheduleExceptions ScheduleException[]
+  serviceCategories ServiceCategory[]
 
   @@map("organizations")
 }
@@ -209,6 +210,7 @@ model Service {
   description         String?      @db.Text
   durationMinutes     Int          @default(30) @map("duration_minutes")
   priceInCents        Int          @map("price_in_cents") // Preco em centavos inteiros (ex: 5000 = R$ 50,00)
+  categoryId          String?      @map("category_id")
   category            String       @default("corte")
   bufferBeforeMinutes Int          @default(0) @map("buffer_before_minutes")
   bufferAfterMinutes  Int          @default(0) @map("buffer_after_minutes")
@@ -218,12 +220,32 @@ model Service {
   updatedAt           DateTime     @updatedAt @map("updated_at")
 
   organization    Organization          @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  serviceCategory ServiceCategory?      @relation(fields: [categoryId], references: [id], onDelete: SetNull)
   professionals   ProfessionalService[]
   orderItems      OrderItem[]
   appointments    Appointment[]
 
   @@index([organizationId])
+  @@index([categoryId])
   @@map("services")
+}
+
+model ServiceCategory {
+  id             String       @id @default(cuid())
+  organizationId String       @map("organization_id")
+  name           String
+  description    String?
+  color          String?      @default("#c22ef3")
+  active         Boolean      @default(true)
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  services       Service[]
+
+  @@unique([organizationId, name])
+  @@index([organizationId])
+  @@map("service_categories")
 }
 
 model ProfessionalService {

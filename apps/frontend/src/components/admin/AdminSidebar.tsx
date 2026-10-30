@@ -91,8 +91,6 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ className }) => {
           items: [
             { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
             { name: "Agenda Inteligente", href: "/admin/agenda", icon: CalendarDays },
-            { name: "Catálogo de Serviços", href: "/admin/agenda/servicos", icon: Scissors },
-            { name: "Escalas & Folgas", href: "/admin/agenda/disponibilidade", icon: Clock },
             { name: "Comandas e PDV", href: "/admin/comandas", icon: Receipt },
             { name: "Caixa Diário", href: "/admin/caixa", icon: Wallet },
             { name: "Clientes da Barbearia", href: "/admin/clientes", icon: Users },
@@ -136,8 +134,6 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ className }) => {
         title: "CRM Barbearia",
         items: [
           { name: "Agenda Inteligente", href: "/admin/agenda", icon: CalendarDays },
-          { name: "Catálogo de Serviços", href: "/admin/agenda/servicos", icon: Scissors },
-          { name: "Escalas & Folgas", href: "/admin/agenda/disponibilidade", icon: Clock },
           { name: "Comandas e PDV", href: "/admin/comandas", icon: Receipt },
           { name: "Caixa Diário", href: "/admin/caixa", icon: Wallet },
         ],

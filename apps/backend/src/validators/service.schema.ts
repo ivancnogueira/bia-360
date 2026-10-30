@@ -18,6 +18,7 @@ export const CreateServiceSchema = z.object({
     .int("Preco deve ser um numero inteiro em centavos")
     .nonnegative("Preco nao pode ser negativo"),
   category: z.string().trim().default("corte"),
+  categoryId: z.string().optional(),
   bufferBeforeMinutes: z.number().int().min(0).default(0),
   bufferAfterMinutes: z.number().int().min(0).default(0),
   color: z.string().trim().default("#3B82F6"),

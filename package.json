@@ -7,6 +7,8 @@
     "packages/*"
   ],
   "scripts": {
+    "dev": "npm run dev --workspaces --parallel",
+    "start": "npm run start --workspaces --parallel",
     "dev:frontend": "npm run dev --workspace=@bia/frontend",
     "dev:backend": "npm run dev --workspace=@bia/backend",
     "build:frontend": "npm run build --workspace=@bia/frontend",

@@ -2,14 +2,135 @@
 @tailwind components;
 @tailwind utilities;
 
-:root { --header-height: 76px; --page-background: #08070d; }
+@layer base {
+  /* =========================================================================
+   * MODO CLARO (LIGHT MODE) - Clean, Executivo, Alta Legibilidade
+   * ========================================================================= */
+  :root {
+    --background: #f8fafc;
+    --foreground: #0f172a;
+    
+    --card: #ffffff;
+    --card-foreground: #0f172a;
+    
+    --popover: #ffffff;
+    --popover-foreground: #0f172a;
+    
+    --border: #e2e8f0;
+    --input: #e2e8f0;
+    
+    --muted: #f1f5f9;
+    --muted-foreground: #64748b;
+    
+    --accent: #f8fafc;
+    --accent-foreground: #0f172a;
+    
+    --primary: #0f172a;
+    --primary-foreground: #ffffff;
+    
+    --secondary: #f1f5f9;
+    --secondary-foreground: #0f172a;
+
+    --sidebar-bg: #ffffff;
+    --sidebar-border: #e2e8f0;
+    --sidebar-hover: #f1f5f9;
+    --sidebar-active: #0f172a;
+    --sidebar-active-fg: #ffffff;
+
+    --header-height: 76px;
+    --page-background: #f8fafc;
+  }
+
+  /* =========================================================================
+   * MODO ESCURO (DARK MODE) - Deep Cyberpunk BIA 360
+   * ========================================================================= */
+  .dark {
+    --background: #08070d;
+    --foreground: #f7f2ff;
+    
+    --card: #100b17;
+    --card-foreground: #f7f2ff;
+    
+    --popover: #150e20;
+    --popover-foreground: #f7f2ff;
+    
+    --border: #d798ff22;
+    --input: #d798ff22;
+    
+    --muted: #170e24;
+    --muted-foreground: #baacc7;
+    
+    --accent: #1e1130;
+    --accent-foreground: #f7f2ff;
+    
+    --primary: #f7f2ff;
+    --primary-foreground: #08070d;
+    
+    --secondary: #170e24;
+    --secondary-foreground: #f7f2ff;
+
+    --sidebar-bg: #08070d;
+    --sidebar-border: #d798ff22;
+    --sidebar-hover: #170e24;
+    --sidebar-active: #c22ef3;
+    --sidebar-active-fg: #ffffff;
+
+    --page-background: #08070d;
+  }
+}
+
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; scroll-padding-top: calc(var(--header-height) + 16px); }
-body { margin: 0; background: var(--page-background); color: #f7f2ff; font-family: Manrope, Arial, sans-serif; }
+body {
+  margin: 0;
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: Manrope, Arial, sans-serif;
+  overflow-x: hidden;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
 a { color: inherit; text-decoration: none; }
 button, a { -webkit-tap-highlight-color: transparent; }
 button { font: inherit; }
 a:focus-visible, button:focus-visible { outline: 2px solid #ff57cc; outline-offset: 5px; }
+
+/* =========================================================================
+ * VIEW TRANSITIONS API (PORTADO DO BIA-360 / CHEFINANÇAS / MAGIC UI)
+ * Alternância de tema com animação geométrica suave e fluida
+ * ========================================================================= */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+html[data-magicui-theme-vt="active"]::view-transition-group(root) {
+  animation-duration: var(--magicui-theme-toggle-vt-duration, 450ms);
+}
+
+html[data-magicui-theme-vt="active"]::view-transition-new(root) {
+  clip-path: var(--magicui-theme-vt-clip-from);
+}
+
+/* Custom scrollbars adaptativos */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--muted-foreground);
+}
+
 .button {
   display: inline-flex; align-items: center; justify-content: center; gap: 20px;
   background: linear-gradient(115deg, #c22ef3, #f33199); padding: 18px 25px;

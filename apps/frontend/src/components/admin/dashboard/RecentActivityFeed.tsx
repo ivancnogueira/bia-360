@@ -27,30 +27,30 @@ const defaultActivities: ActivityEvent[] = [
     id: "act-1",
     type: "HUMAN_HANDOFF",
     title: "Cliente solicitou atendente humano",
-    description: "Carlos Peixoto tem duvida sobre condicoes de pagamento parcelado do curso.",
-    timeAgo: "Ha 3 minutos",
+    description: "Carlos Peixoto tem dúvida sobre condições de pagamento parcelado do curso.",
+    timeAgo: "Há 3 minutos",
     actionUrl: "/admin/clientes",
   },
   {
     id: "act-2",
     type: "APPOINTMENT_CONFIRMED",
     title: "Agendamento confirmado via BIA WhatsApp",
-    description: "Marcos Vinicius agendou Corte e Barboterapia com Rodrigo Barone para hoje as 11:00.",
-    timeAgo: "Ha 12 minutos",
+    description: "Marcos Vinicius agendou Corte e Barboterapia com Rodrigo Barone para hoje às 11:00.",
+    timeAgo: "Há 12 minutos",
   },
   {
     id: "act-3",
     type: "ORDER_PAID",
     title: "Comanda liquidada no PDV",
     description: "Comanda CMD-1044 (Eduardo Camargo) paga via PIX no valor de R$ 135,00.",
-    timeAgo: "Ha 28 minutos",
+    timeAgo: "Há 28 minutos",
   },
   {
     id: "act-4",
     type: "LEAD_CAPTURED",
-    title: "Novo interessado na Barone Academy",
-    description: "Rafael Martins iniciou simulacao do curso de Formacao Profissional de Barbeiro.",
-    timeAgo: "Ha 45 minutos",
+    title: "Novo interessado na Academy",
+    description: "Rafael Martins iniciou simulação do curso de Formação Profissional de Barbeiro.",
+    timeAgo: "Há 45 minutos",
   },
 ];
 
@@ -59,15 +59,15 @@ export const RecentActivityFeed: React.FC = () => {
     <Card>
       <CardHeader>
         <div className="flex items-center gap-2">
-          <Activity size={16} className="text-[#de74f6]" />
-          <CardTitle>Atividades Recentes e Notificacoes</CardTitle>
+          <Activity size={16} className="text-emerald-500 dark:text-[#de74f6]" />
+          <CardTitle>Atividades Recentes e Notificações</CardTitle>
         </div>
         <Badge variant="purple" size="sm">
           Tempo Real
         </Badge>
       </CardHeader>
       <CardContent>
-        <div className="divide-y divide-[#d798ff15]">
+        <div className="divide-y divide-border">
           {defaultActivities.map((act) => (
             <div
               key={act.id}
@@ -77,12 +77,12 @@ export const RecentActivityFeed: React.FC = () => {
                 <div
                   className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 mt-0.5 ${
                     act.type === "HUMAN_HANDOFF"
-                      ? "bg-rose-950/60 border border-rose-500/40 text-rose-400"
+                      ? "bg-rose-500/10 border border-rose-500/30 text-rose-500 dark:text-rose-400"
                       : act.type === "APPOINTMENT_CONFIRMED"
-                      ? "bg-emerald-950/60 border border-emerald-500/40 text-emerald-400"
+                      ? "bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400"
                       : act.type === "ORDER_PAID"
-                      ? "bg-cyan-950/60 border border-cyan-500/40 text-cyan-400"
-                      : "bg-[#c22ef322] border border-[#c22ef344] text-[#de74f6]"
+                      ? "bg-cyan-500/10 border border-cyan-500/30 text-cyan-600 dark:text-cyan-400"
+                      : "bg-purple-500/10 border border-purple-500/30 text-purple-600 dark:text-[#de74f6]"
                   }`}
                 >
                   {act.type === "HUMAN_HANDOFF" ? (
@@ -97,11 +97,11 @@ export const RecentActivityFeed: React.FC = () => {
                 </div>
 
                 <div>
-                  <div className="text-xs font-bold text-white">{act.title}</div>
-                  <div className="text-[11px] text-[#baacc7] leading-relaxed mt-0.5">
+                  <div className="text-xs font-bold text-foreground">{act.title}</div>
+                  <div className="text-[11px] text-muted-foreground leading-relaxed mt-0.5">
                     {act.description}
                   </div>
-                  <div className="flex items-center gap-1 text-[10px] text-[#887591] font-mono mt-1">
+                  <div className="flex items-center gap-1 text-[10px] text-muted-foreground font-mono mt-1">
                     <Clock size={10} />
                     <span>{act.timeAgo}</span>
                   </div>
@@ -120,4 +120,3 @@ export const RecentActivityFeed: React.FC = () => {
     </Card>
   );
 };
-

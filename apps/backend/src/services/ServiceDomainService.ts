@@ -22,6 +22,9 @@ export class ServiceDomainService {
         durationMinutes: validated.durationMinutes,
         priceInCents: validated.priceInCents,
         category: validated.category,
+        bufferBeforeMinutes: validated.bufferBeforeMinutes,
+        bufferAfterMinutes: validated.bufferAfterMinutes,
+        color: validated.color,
         active: validated.active,
       },
     });
@@ -48,6 +51,15 @@ export class ServiceDomainService {
         ...(options?.category ? { category: options.category } : {}),
         ...(options?.activeOnly !== false ? { active: true } : {}),
       },
+      include: {
+        professionals: {
+          include: {
+            professional: {
+              select: { id: true, name: true, color: true },
+            },
+          },
+        },
+      },
       orderBy: { name: "asc" },
     });
   }
@@ -60,6 +72,15 @@ export class ServiceDomainService {
       where: {
         id: serviceId,
         organizationId,
+      },
+      include: {
+        professionals: {
+          include: {
+            professional: {
+              select: { id: true, name: true, color: true },
+            },
+          },
+        },
       },
     });
 

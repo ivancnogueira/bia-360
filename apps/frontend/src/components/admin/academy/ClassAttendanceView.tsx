@@ -153,7 +153,7 @@ export const ClassAttendanceView: React.FC<ClassAttendanceViewProps> = ({
         isOpen={!!selectedStudentCert}
         onClose={() => setSelectedStudentCert(null)}
         title="Certificado Digital Emitido com Sucesso"
-        description="Autenticidade e codigo de verificacao criptografica anti-fraude gerados no padrao Barone."
+        description="Autenticidade e código de verificação criptográfica anti-fraude gerados no padrão oficial da Academy."
       >
         {selectedStudentCert ? (
           <div className="space-y-4">
@@ -163,7 +163,7 @@ export const ClassAttendanceView: React.FC<ClassAttendanceViewProps> = ({
                 {selectedStudentCert.name}
               </div>
               <div className="text-xs text-[#baacc7]">
-                Conclusao com frequencia comprovada de{" "}
+                Conclusão com frequência comprovada de{" "}
                 <span className="text-emerald-400 font-bold">
                   {Math.round(
                     (selectedStudentCert.attendedSessions /
@@ -174,7 +174,7 @@ export const ClassAttendanceView: React.FC<ClassAttendanceViewProps> = ({
                 </span>
               </div>
               <div className="mt-3 p-2 bg-[#08070d] border border-[#d798ff33] rounded-lg font-mono text-sm font-black text-[#de74f6] tracking-widest">
-                BARONE-78C2-A9F1-E40B
+                ACAD-78C2-A9F1-E40B
               </div>
             </div>
             <div className="text-center">

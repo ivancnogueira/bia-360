@@ -228,11 +228,17 @@ export class AppointmentService {
           unitId: validated.unitId,
           professionalId: validated.professionalId,
           contactId: validated.contactId,
+          serviceId: validated.serviceId,
           startTime,
           endTime,
           status: "CONFIRMED",
           totalInCents: service.priceInCents,
           notes: validated.notes,
+        },
+        include: {
+          professional: true,
+          contact: true,
+          service: true,
         },
       });
 
@@ -283,5 +289,118 @@ export class AppointmentService {
     });
 
     return updated;
+  }
+
+  /**
+   * Lista agendamentos com filtros flexiveis e relacionamentos completos.
+   */
+  static async list(filter: {
+    organizationId: string;
+    unitId?: string;
+    startDate?: Date | string;
+    endDate?: Date | string;
+    professionalId?: string;
+    status?: any;
+  }) {
+    const whereClause: any = {
+      organizationId: filter.organizationId,
+    };
+
+    if (filter.unitId) {
+      whereClause.unitId = filter.unitId;
+    }
+
+    if (filter.professionalId) {
+      whereClause.professionalId = filter.professionalId;
+    }
+
+    if (filter.status) {
+      whereClause.status = filter.status;
+    }
+
+    if (filter.startDate || filter.endDate) {
+      whereClause.startTime = {};
+      if (filter.startDate) {
+        whereClause.startTime.gte = new Date(filter.startDate);
+      }
+      if (filter.endDate) {
+        whereClause.startTime.lte = new Date(filter.endDate);
+      }
+    }
+
+    return prisma.appointment.findMany({
+      where: whereClause,
+      include: {
+        professional: {
+          select: { id: true, name: true, nickname: true, phone: true, color: true },
+        },
+        contact: {
+          select: { id: true, name: true, phone: true },
+        },
+        service: {
+          select: { id: true, name: true, durationMinutes: true, priceInCents: true, color: true },
+        },
+      },
+      orderBy: { startTime: "asc" },
+    });
+  }
+
+  /**
+   * Atualiza status, horario ou profissional de um agendamento.
+   */
+  static async update(
+    id: string,
+    data: {
+      status?: any;
+      notes?: string;
+      startTime?: Date | string;
+      endTime?: Date | string;
+      professionalId?: string;
+    }
+  ) {
+    const appointment = await prisma.appointment.findUnique({
+      where: { id },
+    });
+
+    if (!appointment) {
+      throw new Error("Agendamento nao encontrado.");
+    }
+
+    const updateData: any = {};
+    if (data.status) updateData.status = data.status;
+    if (data.notes !== undefined) updateData.notes = data.notes;
+    if (data.professionalId) updateData.professionalId = data.professionalId;
+    if (data.startTime) updateData.startTime = new Date(data.startTime);
+    if (data.endTime) updateData.endTime = new Date(data.endTime);
+
+    const updated = await prisma.appointment.update({
+      where: { id },
+      data: updateData,
+      include: {
+        professional: true,
+        contact: true,
+        service: true,
+      },
+    });
+
+    await AuditService.logEvent({
+      organizationId: updated.organizationId,
+      unitId: updated.unitId,
+      action: "APPOINTMENT_UPDATED",
+      entityType: "Appointment",
+      entityId: updated.id,
+      metadata: data,
+    });
+
+    return updated;
+  }
+
+  /**
+   * Remove agendamento permanentemente.
+   */
+  static async delete(id: string) {
+    return prisma.appointment.delete({
+      where: { id },
+    });
   }
 }

@@ -1,4 +1,5 @@
 import React from "react";
+import { cn } from "@/lib/utils";
 
 export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
@@ -11,13 +12,14 @@ export const Card: React.FC<CardProps> = ({
   className = "",
   ...props
 }) => {
-  const glowStyle = glow
-    ? "border-[#c22ef3aa] shadow-[0_0_30px_#bf21e51f]"
-    : "border-[#d798ff33] shadow-lg shadow-black/40";
-
   return (
     <div
-      className={`rounded-2xl bg-gradient-to-br from-[#c783ff14] to-[#20122e66] backdrop-blur-xl border ${glowStyle} p-5 transition-all duration-200 ${className}`}
+      className={cn(
+        "rounded-2xl border p-5 sm:p-6 bg-card text-card-foreground shadow-sm transition-all duration-200",
+        "dark:bg-[#100b17] dark:border-[#d798ff22] dark:shadow-lg dark:shadow-black/30",
+        glow && "border-emerald-500/50 shadow-md shadow-emerald-500/10 dark:border-[#c22ef3aa] dark:shadow-[0_0_30px_#bf21e51f]",
+        className
+      )}
       {...props}
     >
       {children}
@@ -30,7 +32,14 @@ export const CardHeader: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({
   className = "",
   ...props
 }) => (
-  <div className={`mb-4 flex items-center justify-between border-b border-[#d798ff22] pb-3 ${className}`} {...props}>
+  <div
+    className={cn(
+      "mb-4 flex items-center justify-between border-b border-border pb-3",
+      "dark:border-[#d798ff22]",
+      className
+    )}
+    {...props}
+  >
     {children}
   </div>
 );
@@ -40,7 +49,13 @@ export const CardTitle: React.FC<React.HTMLAttributes<HTMLHeadingElement>> = ({
   className = "",
   ...props
 }) => (
-  <h3 className={`text-lg font-bold text-[#f7f2ff] tracking-tight ${className}`} {...props}>
+  <h3
+    className={cn(
+      "text-lg font-bold text-foreground tracking-tight",
+      className
+    )}
+    {...props}
+  >
     {children}
   </h3>
 );
@@ -50,7 +65,13 @@ export const CardDescription: React.FC<React.HTMLAttributes<HTMLParagraphElement
   className = "",
   ...props
 }) => (
-  <p className={`text-xs text-[#baacc7] ${className}`} {...props}>
+  <p
+    className={cn(
+      "text-xs text-muted-foreground leading-relaxed",
+      className
+    )}
+    {...props}
+  >
     {children}
   </p>
 );
@@ -60,7 +81,7 @@ export const CardContent: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({
   className = "",
   ...props
 }) => (
-  <div className={`text-[#eee3f7] ${className}`} {...props}>
+  <div className={cn("space-y-4", className)} {...props}>
     {children}
   </div>
 );
@@ -70,8 +91,14 @@ export const CardFooter: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({
   className = "",
   ...props
 }) => (
-  <div className={`mt-4 pt-3 border-t border-[#d798ff22] flex items-center justify-between text-xs text-[#baacc7] ${className}`} {...props}>
+  <div
+    className={cn(
+      "mt-4 flex items-center justify-end gap-2 border-t border-border pt-3",
+      "dark:border-[#d798ff22]",
+      className
+    )}
+    {...props}
+  >
     {children}
   </div>
 );
-

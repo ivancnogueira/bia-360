@@ -5,6 +5,7 @@ import './navigation.css';
 import './sales.css';
 import { asset } from '../data/product';
 import { siteConfig, allKeywordsString } from '../data/seo';
+import { ThemeProvider } from '@/components/providers/theme-provider';
 
 export const viewport: Viewport = {
   themeColor: siteConfig.themeColor,
@@ -71,9 +72,15 @@ export const metadata: Metadata = {
     },
   },
   icons: {
-    icon: asset('/images/logo.png'),
-    shortcut: asset('/images/logo.png'),
-    apple: asset('/images/logo.png'),
+    icon: [
+      { url: asset('/images/favicon.png'), sizes: '32x32', type: 'image/png' },
+      { url: asset('/images/icon-192.png'), sizes: '192x192', type: 'image/png' },
+      { url: asset('/images/icon-512.png'), sizes: '512x512', type: 'image/png' },
+    ],
+    shortcut: asset('/favicon.ico'),
+    apple: [
+      { url: asset('/images/apple-icon.png'), sizes: '512x512', type: 'image/png' },
+    ],
   },
   other: {
     'geo.region': siteConfig.geo.region,
@@ -102,7 +109,11 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           }
         `}</style>
       </head>
-      <body>{children}</body>
+      <body>
+        <ThemeProvider defaultTheme="dark">
+          {children}
+        </ThemeProvider>
+      </body>
     </html>
   );
 }

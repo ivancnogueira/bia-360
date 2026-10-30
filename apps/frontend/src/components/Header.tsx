@@ -50,6 +50,12 @@ export function Header() {
         ))}
       </nav>
       <div className="header-actions">
+        <a 
+          href="/login" 
+          className="text-xs font-semibold text-[#eee3f7] hover:text-[#de74f6] px-3 py-1.5 transition-colors hidden sm:inline-block"
+        >
+          Entrar
+        </a>
         <a className="button small" href="#planos" onClick={() => setOpen(false)}>
           Ver planos <ArrowUpRight size={14} aria-hidden="true" />
         </a>

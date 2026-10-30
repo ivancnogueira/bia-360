@@ -13,3 +13,4 @@ export * from "./class-group.schema";
 export * from "./enrollment.schema";
 export * from "./academic.schema";
 export * from "./channel.schema";
+

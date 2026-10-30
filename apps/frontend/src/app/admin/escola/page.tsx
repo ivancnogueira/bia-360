@@ -138,7 +138,7 @@ export default function EscolaPage() {
         s.id === studentId
           ? {
               ...s,
-              certificateCode: "BARONE-78C2-A9F1-E40B",
+              certificateCode: "ACAD-78C2-A9F1-E40B",
               status: "COMPLETED",
             }
           : s
@@ -163,11 +163,11 @@ export default function EscolaPage() {
       {/* Cabecalho da Pagina com Alternador de Abas */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-black text-white tracking-tight">
-            Barone Academy: Gestao Academica e Cursos
+          <h1 className="text-2xl font-black text-foreground tracking-tight">
+            Academy: Gestão Acadêmica e Cursos
           </h1>
-          <p className="text-xs text-[#baacc7] mt-1">
-            Administracao de turmas com trava de capacidade, diario de presenca, certificados criptografados e funil comercial.
+          <p className="text-xs text-muted-foreground mt-1">
+            Administração de turmas com trava de capacidade, diário de presença, certificados criptografados e funil comercial.
           </p>
         </div>
 

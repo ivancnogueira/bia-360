@@ -33,6 +33,7 @@ import {
   Users,
   Grid,
   CalendarDays,
+  ArrowLeft,
 } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
 import { toast } from "@/lib/toast";
@@ -73,12 +74,12 @@ interface Service {
 }
 
 const STATUS_MAP: Record<string, { label: string; bg: string; text: string; border: string }> = {
-  SCHEDULED: { label: "Agendado", bg: "bg-blue-500/10", text: "text-blue-400", border: "border-blue-500/20" },
-  CONFIRMED: { label: "Confirmado", bg: "bg-emerald-500/10", text: "text-emerald-400", border: "border-emerald-500/20" },
-  IN_PROGRESS: { label: "Em Atendimento", bg: "bg-amber-500/15", text: "text-amber-400", border: "border-amber-500/30" },
-  COMPLETED: { label: "Concluído", bg: "bg-purple-500/10", text: "text-purple-400", border: "border-purple-500/20" },
-  CANCELLED: { label: "Cancelado", bg: "bg-red-500/10", text: "text-red-400", border: "border-red-500/20" },
-  NO_SHOW: { label: "Não Compareceu", bg: "bg-gray-500/10", text: "text-gray-400", border: "border-gray-500/20" },
+  SCHEDULED: { label: "Agendado", bg: "bg-blue-500/10", text: "text-blue-500 dark:text-blue-400", border: "border-blue-500/20" },
+  CONFIRMED: { label: "Confirmado", bg: "bg-emerald-500/10", text: "text-emerald-500 dark:text-emerald-400", border: "border-emerald-500/20" },
+  IN_PROGRESS: { label: "Em Atendimento", bg: "bg-amber-500/15", text: "text-amber-500 dark:text-amber-400", border: "border-amber-500/30" },
+  COMPLETED: { label: "Concluído", bg: "bg-purple-500/10", text: "text-purple-500 dark:text-purple-400", border: "border-purple-500/20" },
+  CANCELLED: { label: "Cancelado", bg: "bg-red-500/10", text: "text-red-500 dark:text-red-400", border: "border-red-500/20" },
+  NO_SHOW: { label: "Não Compareceu", bg: "bg-gray-500/10", text: "text-gray-500 dark:text-gray-400", border: "border-gray-500/20" },
 };
 
 const TIME_SLOTS: string[] = [];
@@ -98,14 +99,16 @@ export default function AgendaPage() {
   const [services, setServices] = useState<Service[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Filtros e Navegação
+  // Modo de exibição: "agenda" (grade operacional) ou "create_booking" (padrão In-Focus sem modais)
+  const [view, setView] = useState<"agenda" | "create_booking">("agenda");
+
+  // Filtros e Navegação da Agenda
   const [currentDate, setCurrentDate] = useState(new Date());
   const [viewMode, setViewMode] = useState<ViewMode>("day_columns");
   const [selectedProfFilter, setSelectedProfFilter] = useState<string>("ALL");
   const [selectedStatusFilter, setSelectedStatusFilter] = useState<StatusFilter>("ALL");
 
-  // Modal Novo Agendamento
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  // Formulário In-Focus Novo Agendamento
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formCustomerName, setFormCustomerName] = useState("");
   const [formCustomerPhone, setFormCustomerPhone] = useState("");
@@ -144,7 +147,6 @@ export default function AgendaPage() {
   const fetchAppointments = useCallback(async () => {
     try {
       setIsLoading(true);
-      // Calcula intervalo de busca baseado na viewMode
       let start: Date;
       let end: Date;
 
@@ -231,7 +233,7 @@ export default function AgendaPage() {
     }
   };
 
-  // Criar Agendamento Direto
+  // Criar Agendamento Direto no Padrão In-Focus
   const handleCreateAppointment = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formCustomerName || !formProfId || !formServiceId) {
@@ -244,7 +246,6 @@ export default function AgendaPage() {
       const dateStr = format(currentDate, "yyyy-MM-dd");
       const startTime = new Date(`${dateStr}T${formTime}:00`);
 
-      // Mock contact creation se necessario via backend
       const res = await fetch("http://localhost:3001/api/v1/appointments", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -267,7 +268,7 @@ export default function AgendaPage() {
       }
 
       toast.success("Agendamento criado com sucesso!");
-      setIsModalOpen(false);
+      setView("agenda");
       setFormCustomerName("");
       setFormCustomerPhone("");
       setFormNotes("");
@@ -302,6 +303,175 @@ export default function AgendaPage() {
     return map;
   }, [activeProfessionals, appointments]);
 
+  // =========================================================================
+  // VIEW IN-FOCUS: NOVO AGENDAMENTO (ZERO MODAIS, PADRÃO VISUAL SUPREMO)
+  // =========================================================================
+  if (view === "create_booking") {
+    return (
+      <div className="space-y-6 max-w-4xl animate-in fade-in duration-200">
+        {/* Cabeçalho In-Focus */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-200 dark:border-white/10 pb-5">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setView("agenda")}
+              className="p-2.5 rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-[#14171C] hover:bg-gray-100 dark:hover:bg-white/5 text-gray-700 dark:text-gray-300 transition-colors"
+              title="Voltar para a Agenda"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </button>
+            <div>
+              <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mb-0.5">
+                <span>Agenda Operacional</span>
+                <span>/</span>
+                <span className="text-[#c22ef3] font-semibold">Novo Agendamento na Recepção</span>
+              </div>
+              <h1 className="text-2xl font-black text-gray-900 dark:text-white tracking-tight flex items-center gap-2">
+                <CalendarDays className="w-6 h-6 text-[#c22ef3]" />
+                Novo Agendamento na Recepção
+              </h1>
+            </div>
+          </div>
+
+          <button
+            onClick={() => setView("agenda")}
+            className="px-4 py-2 rounded-xl border border-gray-200 dark:border-white/10 text-xs font-bold text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors self-start sm:self-auto"
+          >
+            ← Voltar para a Agenda
+          </button>
+        </div>
+
+        {/* Card do Formulário In-Focus */}
+        <div className="bg-white dark:bg-[#14171C] border border-gray-200 dark:border-white/10 rounded-2xl p-6 md:p-8 shadow-xs transition-colors">
+          <div className="mb-6">
+            <h2 className="text-lg font-bold text-gray-900 dark:text-white">Detalhes da Reserva</h2>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              Bloqueia o horário atômico no banco de dados e sincroniza instantaneamente com a BIA no WhatsApp.
+            </p>
+          </div>
+
+          <form onSubmit={handleCreateAppointment} className="space-y-5">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider block mb-1.5">
+                  Nome do Cliente *
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Ex: Carlos Eduardo Silveira"
+                  value={formCustomerName}
+                  onChange={(e) => setFormCustomerName(e.target.value)}
+                  className="w-full bg-slate-50 dark:bg-[#0B0D11] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:border-[#c22ef3]"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider block mb-1.5">
+                  Telefone WhatsApp *
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Ex: (41) 98888-7777"
+                  value={formCustomerPhone}
+                  onChange={(e) => setFormCustomerPhone(e.target.value)}
+                  className="w-full bg-slate-50 dark:bg-[#0B0D11] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:border-[#c22ef3]"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider block mb-1.5">
+                  Barbeiro *
+                </label>
+                <select
+                  value={formProfId}
+                  onChange={(e) => setFormProfId(e.target.value)}
+                  className="w-full bg-slate-50 dark:bg-[#0B0D11] border border-gray-200 dark:border-white/10 rounded-xl px-3 py-2.5 text-sm text-gray-900 dark:text-white focus:outline-none focus:border-[#c22ef3]"
+                >
+                  {activeProfessionals.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.name} {p.nickname ? `(${p.nickname})` : ""}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider block mb-1.5">
+                  Horário de Início *
+                </label>
+                <select
+                  value={formTime}
+                  onChange={(e) => setFormTime(e.target.value)}
+                  className="w-full bg-slate-50 dark:bg-[#0B0D11] border border-gray-200 dark:border-white/10 rounded-xl px-3 py-2.5 text-sm text-gray-900 dark:text-white font-mono focus:outline-none focus:border-[#c22ef3]"
+                >
+                  {TIME_SLOTS.map((slot) => (
+                    <option key={slot} value={slot}>
+                      {slot}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label className="text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider block mb-1.5">
+                Serviço Pretendido *
+              </label>
+              <select
+                value={formServiceId}
+                onChange={(e) => setFormServiceId(e.target.value)}
+                className="w-full bg-slate-50 dark:bg-[#0B0D11] border border-gray-200 dark:border-white/10 rounded-xl px-3 py-2.5 text-sm text-gray-900 dark:text-white focus:outline-none focus:border-[#c22ef3]"
+              >
+                {services.map((svc) => (
+                  <option key={svc.id} value={svc.id}>
+                    {svc.name} — R$ {(svc.priceInCents / 100).toFixed(2).replace(".", ",")} ({svc.durationMinutes} min)
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider block mb-1.5">
+                Notas / Preferências do Cliente
+              </label>
+              <textarea
+                rows={3}
+                placeholder="Ex: Prefere corte bem baixo na tesoura, cliente novo."
+                value={formNotes}
+                onChange={(e) => setFormNotes(e.target.value)}
+                className="w-full bg-slate-50 dark:bg-[#0B0D11] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:border-[#c22ef3] resize-none"
+              />
+            </div>
+
+            <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-200 dark:border-white/10">
+              <button
+                type="button"
+                onClick={() => setView("agenda")}
+                className="px-5 py-2.5 rounded-xl bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 text-xs font-bold text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
+              >
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="px-7 py-2.5 rounded-xl bg-[#c22ef3] hover:bg-[#a825d4] text-white text-xs font-black tracking-wide shadow-lg shadow-[#c22ef3]/20 transition-all flex items-center gap-2"
+              >
+                {isSubmitting ? <Spinner className="w-4 h-4 text-white" /> : <Check className="w-4 h-4" />}
+                Confirmar Agendamento
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    );
+  }
+
+  // =========================================================================
+  // VIEW PRINCIPAL: GRADE OPERACIONAL DA AGENDA (DUAL-THEME)
+  // =========================================================================
   return (
     <div className="space-y-6">
       {/* Cabeçalho Principal */}
@@ -321,7 +491,7 @@ export default function AgendaPage() {
             onClick={() => {
               if (activeProfessionals.length > 0 && !formProfId) setFormProfId(activeProfessionals[0].id);
               if (services.length > 0 && !formServiceId) setFormServiceId(services[0].id);
-              setIsModalOpen(true);
+              setView("create_booking");
             }}
             className="px-5 py-2.5 rounded-xl bg-[#c22ef3] hover:bg-[#a825d4] text-white text-xs font-black tracking-wide shadow-lg shadow-[#c22ef3]/20 transition-all flex items-center gap-2"
           >
@@ -500,7 +670,6 @@ export default function AgendaPage() {
                   {/* Células por Barbeiro */}
                   {activeProfessionals.map((prof) => {
                     const profApps = appointmentsByProf[prof.id] || [];
-                    // Verifica se há agendamento iniciando neste slot
                     const appStartingHere = profApps.filter((a) => {
                       const startTimeUtc = new Date(a.startTime);
                       const timeStr = format(startTimeUtc, "HH:mm");
@@ -606,7 +775,7 @@ export default function AgendaPage() {
                             onClick={() => {
                               setFormProfId(prof.id);
                               setFormTime(timeSlot);
-                              setIsModalOpen(true);
+                              setView("create_booking");
                             }}
                             className="opacity-0 group-hover:opacity-100 transition-opacity absolute inset-1 rounded-lg border border-dashed border-gray-300 dark:border-white/20 bg-gray-50/50 dark:bg-white/[0.02] hover:bg-gray-100 dark:hover:bg-white/[0.05] flex items-center justify-center text-[10px] text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white font-semibold"
                           >
@@ -747,142 +916,6 @@ export default function AgendaPage() {
                 </div>
               );
             })}
-          </div>
-        </div>
-      )}
-
-      {/* Modal de Criação de Agendamento */}
-      {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 dark:bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white dark:bg-[#14171C] border border-gray-200 dark:border-white/10 rounded-2xl w-full max-w-lg p-6 shadow-2xl relative transition-colors">
-            <button
-              onClick={() => setIsModalOpen(false)}
-              className="absolute top-5 right-5 p-1.5 text-gray-400 hover:text-gray-700 dark:hover:text-white rounded-lg hover:bg-gray-100 dark:hover:bg-white/5 transition-colors"
-            >
-              <XCircle className="w-5 h-5" />
-            </button>
-
-            <h2 className="text-xl font-black text-gray-900 dark:text-white tracking-tight flex items-center gap-2 mb-1">
-              <CalendarDays className="w-5 h-5 text-[#c22ef3]" />
-              Novo Agendamento na Recepção
-            </h2>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mb-6">
-              Bloqueia o horário atômico no banco de dados e sincroniza com a BIA no WhatsApp.
-            </p>
-
-            <form onSubmit={handleCreateAppointment} className="space-y-4">
-              <div>
-                <label className="text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider block mb-1">
-                  Nome do Cliente *
-                </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="Ex: Carlos Eduardo Silveira"
-                  value={formCustomerName}
-                  onChange={(e) => setFormCustomerName(e.target.value)}
-                  className="w-full bg-slate-50 dark:bg-[#0B0D11] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:border-[#c22ef3]"
-                />
-              </div>
-
-              <div>
-                <label className="text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider block mb-1">
-                  Telefone WhatsApp *
-                </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="Ex: (41) 98888-7777"
-                  value={formCustomerPhone}
-                  onChange={(e) => setFormCustomerPhone(e.target.value)}
-                  className="w-full bg-slate-50 dark:bg-[#0B0D11] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:border-[#c22ef3]"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider block mb-1">
-                    Barbeiro *
-                  </label>
-                  <select
-                    value={formProfId}
-                    onChange={(e) => setFormProfId(e.target.value)}
-                    className="w-full bg-slate-50 dark:bg-[#0B0D11] border border-gray-200 dark:border-white/10 rounded-xl px-3 py-2.5 text-xs text-gray-900 dark:text-white focus:outline-none focus:border-[#c22ef3]"
-                  >
-                    {activeProfessionals.map((p) => (
-                      <option key={p.id} value={p.id}>
-                        {p.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider block mb-1">
-                    Horário de Início *
-                  </label>
-                  <select
-                    value={formTime}
-                    onChange={(e) => setFormTime(e.target.value)}
-                    className="w-full bg-slate-50 dark:bg-[#0B0D11] border border-gray-200 dark:border-white/10 rounded-xl px-3 py-2.5 text-xs text-gray-900 dark:text-white font-mono focus:outline-none focus:border-[#c22ef3]"
-                  >
-                    {TIME_SLOTS.map((slot) => (
-                      <option key={slot} value={slot}>
-                        {slot}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              <div>
-                <label className="text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider block mb-1">
-                  Serviço Pretendido *
-                </label>
-                <select
-                  value={formServiceId}
-                  onChange={(e) => setFormServiceId(e.target.value)}
-                  className="w-full bg-slate-50 dark:bg-[#0B0D11] border border-gray-200 dark:border-white/10 rounded-xl px-3 py-2.5 text-xs text-gray-900 dark:text-white focus:outline-none focus:border-[#c22ef3]"
-                >
-                  {services.map((svc) => (
-                    <option key={svc.id} value={svc.id}>
-                      {svc.name} - R$ {(svc.priceInCents / 100).toFixed(2).replace(".", ",")} ({svc.durationMinutes} min)
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider block mb-1">
-                  Notas / Preferências
-                </label>
-                <textarea
-                  rows={2}
-                  placeholder="Ex: Prefere corte bem baixo na tesoura, cliente novo."
-                  value={formNotes}
-                  onChange={(e) => setFormNotes(e.target.value)}
-                  className="w-full bg-slate-50 dark:bg-[#0B0D11] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2 text-xs text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:border-[#c22ef3] resize-none"
-                />
-              </div>
-
-              <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-200 dark:border-white/10">
-                <button
-                  type="button"
-                  onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2.5 rounded-xl bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 text-xs font-bold text-gray-700 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="px-6 py-2.5 rounded-xl bg-[#c22ef3] hover:bg-[#a825d4] text-white text-xs font-black tracking-wide shadow-lg shadow-[#c22ef3]/20 transition-all flex items-center gap-2"
-                >
-                  {isSubmitting ? <Spinner className="w-4 h-4 text-white" /> : <Check className="w-4 h-4" />}
-                  Confirmar Agendamento
-                </button>
-              </div>
-            </form>
           </div>
         </div>
       )}

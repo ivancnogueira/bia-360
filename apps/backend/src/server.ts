@@ -9,6 +9,7 @@ import { AvailabilityEngine } from "./services/AvailabilityEngine";
 import { AppointmentService } from "./services/AppointmentService";
 import { ProfessionalService } from "./services/ProfessionalService";
 import { ScheduleExceptionService } from "./services/ScheduleExceptionService";
+import { ScheduleSchemeService } from "./services/ScheduleSchemeService";
 import { CourseService } from "./services/CourseService";
 import { ClassGroupService } from "./services/ClassGroupService";
 
@@ -185,6 +186,16 @@ app.put("/api/v1/professionals/:id", async (req: Request, res: Response) => {
   }
 });
 
+app.delete("/api/v1/professionals/:id", async (req: Request, res: Response) => {
+  const organizationId = (req.body.organizationId as string) || (req.query.organizationId as string) || "org-barone-matriz";
+  try {
+    await ProfessionalService.delete(organizationId, req.params.id);
+    return res.json({ success: true });
+  } catch (err: any) {
+    return res.status(400).json({ error: err.message });
+  }
+});
+
 app.post("/api/v1/professionals/:id/services", async (req: Request, res: Response) => {
   const organizationId = (req.body.organizationId as string) || (req.query.organizationId as string) || "org-barone-matriz";
   try {
@@ -280,6 +291,47 @@ app.post("/api/v1/availability/schedules", async (req: Request, res: Response) =
     }
     const updated = await ProfessionalService.setWorkSchedules(organizationId, professionalId, schedules);
     return res.json({ data: updated });
+  } catch (err: any) {
+    return res.status(400).json({ error: err.message });
+  }
+});
+
+// 4.3.1 Rotas de Esquemas de Disponibilidade Multiplos (ScheduleSchemes estilo NaviChats)
+app.get("/api/v1/availability/schemes", async (req: Request, res: Response) => {
+  const organizationId = (req.query.organizationId as string) || "org-barone-matriz";
+  try {
+    const schemes = await ScheduleSchemeService.list(organizationId);
+    return res.json({ data: schemes });
+  } catch (err: any) {
+    return res.status(400).json({ error: err.message });
+  }
+});
+
+app.post("/api/v1/availability/schemes", async (req: Request, res: Response) => {
+  const organizationId = (req.body.organizationId as string) || "org-barone-matriz";
+  try {
+    const scheme = await ScheduleSchemeService.create(organizationId, req.body);
+    return res.status(201).json({ data: scheme });
+  } catch (err: any) {
+    return res.status(400).json({ error: err.message });
+  }
+});
+
+app.put("/api/v1/availability/schemes/:id", async (req: Request, res: Response) => {
+  const organizationId = (req.body.organizationId as string) || (req.query.organizationId as string) || "org-barone-matriz";
+  try {
+    const updated = await ScheduleSchemeService.update(organizationId, req.params.id, req.body);
+    return res.json({ data: updated });
+  } catch (err: any) {
+    return res.status(400).json({ error: err.message });
+  }
+});
+
+app.delete("/api/v1/availability/schemes/:id", async (req: Request, res: Response) => {
+  const organizationId = (req.query.organizationId as string) || "org-barone-matriz";
+  try {
+    const result = await ScheduleSchemeService.delete(organizationId, req.params.id);
+    return res.json(result);
   } catch (err: any) {
     return res.status(400).json({ error: err.message });
   }

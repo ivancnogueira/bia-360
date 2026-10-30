@@ -15,12 +15,28 @@ export class ProfessionalService {
   static async create(rawInput: CreateProfessionalInput, actorId?: string) {
     const validated = CreateProfessionalSchema.parse(rawInput);
 
+    // Gera slug amigavel se nao fornecido
+    const baseSlug = validated.slug
+      ? validated.slug.toLowerCase().replace(/[^a-z0-9-]/g, "-")
+      : (validated.nickname || validated.name)
+          .toLowerCase()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .replace(/[^a-z0-9]/g, "-")
+          .replace(/-+/g, "-")
+          .replace(/^-|-$/g, "");
+
+    const slug = baseSlug || `barbeiro-${Date.now().toString(36)}`;
+
     const professional = await prisma.professional.create({
       data: {
         organizationId: validated.organizationId,
         name: validated.name,
         nickname: validated.nickname,
+        email: validated.email,
         phone: validated.phone,
+        slug,
+        scheduleId: validated.scheduleId,
         commissionRate: validated.commissionRate,
         color: validated.color,
         active: validated.active,
@@ -39,6 +55,7 @@ export class ProfessionalService {
       },
       include: {
         workSchedules: true,
+        schedule: true,
       },
     });
 
@@ -48,7 +65,7 @@ export class ProfessionalService {
       action: "PROFESSIONAL_CREATED",
       entityType: "Professional",
       entityId: professional.id,
-      metadata: { name: professional.name, commissionRate: professional.commissionRate },
+      metadata: { name: professional.name, commissionRate: professional.commissionRate, slug },
     });
 
     return professional;
@@ -65,6 +82,7 @@ export class ProfessionalService {
       },
       include: {
         workSchedules: { where: { active: true }, orderBy: { dayOfWeek: "asc" } },
+        schedule: { include: { workSchedules: true } },
         services: { include: { service: true } },
       },
       orderBy: { name: "asc" },
@@ -82,6 +100,7 @@ export class ProfessionalService {
       },
       include: {
         workSchedules: { orderBy: { dayOfWeek: "asc" } },
+        schedule: { include: { workSchedules: true } },
         services: { include: { service: true } },
       },
     });
@@ -106,15 +125,26 @@ export class ProfessionalService {
 
     await this.getById(organizationId, professionalId);
 
+    const slug = validated.slug
+      ? validated.slug.toLowerCase().replace(/[^a-z0-9-]/g, "-")
+      : undefined;
+
     const updated = await prisma.professional.update({
       where: { id: professionalId },
       data: {
-        name: validated.name,
-        nickname: validated.nickname,
-        phone: validated.phone,
-        commissionRate: validated.commissionRate,
-        color: validated.color,
-        active: validated.active,
+        ...(validated.name ? { name: validated.name } : {}),
+        ...(validated.nickname !== undefined ? { nickname: validated.nickname } : {}),
+        ...(validated.email !== undefined ? { email: validated.email } : {}),
+        ...(validated.phone !== undefined ? { phone: validated.phone } : {}),
+        ...(slug ? { slug } : {}),
+        ...(validated.scheduleId !== undefined ? { scheduleId: validated.scheduleId } : {}),
+        ...(validated.commissionRate !== undefined ? { commissionRate: validated.commissionRate } : {}),
+        ...(validated.color ? { color: validated.color } : {}),
+        ...(validated.active !== undefined ? { active: validated.active } : {}),
+      },
+      include: {
+        schedule: true,
+        workSchedules: true,
       },
     });
 
@@ -128,6 +158,20 @@ export class ProfessionalService {
     });
 
     return updated;
+  }
+
+  /**
+   * Exclui ou desativa profissional.
+   */
+  static async delete(organizationId: string, professionalId: string) {
+    await this.getById(organizationId, professionalId);
+
+    await prisma.professional.update({
+      where: { id: professionalId },
+      data: { active: false },
+    });
+
+    return { success: true };
   }
 
   /**

@@ -110,6 +110,7 @@ model Organization {
   whatsappChannels  WhatsAppChannel[]
   scheduleExceptions ScheduleException[]
   serviceCategories ServiceCategory[]
+  scheduleSchemes   ScheduleScheme[]
 
   @@map("organizations")
 }
@@ -184,14 +185,18 @@ model Professional {
   organizationId String       @map("organization_id")
   name           String
   nickname       String?
+  email          String?
   phone          String?
+  slug           String?
   commissionRate Int          @default(50) @map("commission_rate") // Porcentagem inteira (ex: 50 para 50%)
   color          String?      @default("#c22ef3")
+  scheduleId     String?      @map("schedule_id")
   active         Boolean      @default(true)
   createdAt      DateTime     @default(now()) @map("created_at")
   updatedAt      DateTime     @updatedAt @map("updated_at")
 
   organization   Organization           @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  schedule       ScheduleScheme?        @relation(fields: [scheduleId], references: [id], onDelete: SetNull)
   services       ProfessionalService[]
   workSchedules  WorkSchedule[]
   appointments   Appointment[]
@@ -200,6 +205,8 @@ model Professional {
   scheduleExceptions ScheduleException[]
 
   @@index([organizationId])
+  @@index([organizationId, slug])
+  @@index([scheduleId])
   @@map("professionals")
 }
 
@@ -261,19 +268,39 @@ model ProfessionalService {
   @@map("professional_services")
 }
 
-model WorkSchedule {
-  id             String       @id @default(cuid())
-  professionalId String       @map("professional_id")
-  dayOfWeek      Int          @map("day_of_week") // 0 = Domingo, 1 = Segunda, etc.
-  startTime      String       @map("start_time") // Formato "09:00"
-  endTime        String       @map("end_time")   // Formato "19:00"
-  breakStartTime String?      @map("break_start_time")
-  breakEndTime   String?      @map("break_end_time")
-  active         Boolean      @default(true)
+model ScheduleScheme {
+  id             String         @id @default(cuid())
+  organizationId String         @map("organization_id")
+  name           String         @default("Horário Comercial")
+  timeZone       String         @default("America/Sao_Paulo") @map("timezone")
+  isDefault      Boolean        @default(false) @map("is_default")
+  createdAt      DateTime       @default(now()) @map("created_at")
+  updatedAt      DateTime       @updatedAt @map("updated_at")
 
-  professional   Professional @relation(fields: [professionalId], references: [id], onDelete: Cascade)
+  organization   Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  workSchedules  WorkSchedule[]
+  professionals  Professional[]
+
+  @@index([organizationId])
+  @@map("schedule_schemes")
+}
+
+model WorkSchedule {
+  id               String          @id @default(cuid())
+  professionalId   String?         @map("professional_id")
+  scheduleSchemeId String?         @map("schedule_scheme_id")
+  dayOfWeek        Int             @map("day_of_week") // 0 = Domingo, 1 = Segunda, etc.
+  startTime        String          @map("start_time") // Formato "09:00"
+  endTime          String          @map("end_time")   // Formato "19:00"
+  breakStartTime   String?         @map("break_start_time")
+  breakEndTime     String?         @map("break_end_time")
+  active           Boolean         @default(true)
+
+  professional     Professional?   @relation(fields: [professionalId], references: [id], onDelete: Cascade)
+  scheduleScheme   ScheduleScheme? @relation(fields: [scheduleSchemeId], references: [id], onDelete: Cascade)
 
   @@index([professionalId, dayOfWeek])
+  @@index([scheduleSchemeId, dayOfWeek])
   @@map("work_schedules")
 }
 

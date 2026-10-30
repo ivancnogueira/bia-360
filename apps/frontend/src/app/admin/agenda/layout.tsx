@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { CalendarDays, Scissors, Clock, ArrowLeft } from "lucide-react";
+import { CalendarDays, Scissors, Clock, Users } from "lucide-react";
 
 const subMenuItems = [
   {
@@ -20,8 +20,14 @@ const subMenuItems = [
   },
   {
     href: "/admin/agenda/disponibilidade",
-    label: "Escalas & Folgas",
+    label: "Disponibilidade & Esquemas",
     icon: Clock,
+    exact: false,
+  },
+  {
+    href: "/admin/agenda/profissionais",
+    label: "Barbeiros & Profissionais",
+    icon: Users,
     exact: false,
   },
 ];

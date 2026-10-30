@@ -19,7 +19,10 @@ export const CreateProfessionalSchema = z.object({
     .min(2, "Nome deve conter no minimo 2 caracteres")
     .max(100, "Nome deve conter no maximo 100 caracteres"),
   nickname: z.string().trim().max(50).optional().nullable(),
+  email: z.string().trim().email("E-mail inválido").optional().nullable(),
   phone: z.string().trim().max(30).optional().nullable(),
+  slug: z.string().trim().max(60).optional().nullable(),
+  scheduleId: z.string().trim().optional().nullable(),
   commissionRate: z
     .number()
     .int("Taxa de comissao deve ser numero inteiro")

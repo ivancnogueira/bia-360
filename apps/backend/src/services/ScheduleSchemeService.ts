@@ -1,4 +1,5 @@
 import { prisma } from "../db/prisma";
+import { OrganizationService } from "./OrganizationService";
 
 export interface ScheduleDayBlockInput {
   dayOfWeek: number;
@@ -14,6 +15,7 @@ export class ScheduleSchemeService {
    * Garante ao menos um esquema padrao (seed transparente)
    */
   private static async ensureDefault(organizationId: string) {
+    await OrganizationService.ensureDefaultOrganization(organizationId);
     const count = await prisma.scheduleScheme.count({
       where: { organizationId },
     });
@@ -86,6 +88,8 @@ export class ScheduleSchemeService {
       professionalIds?: string[];
     }
   ) {
+    await OrganizationService.ensureDefaultOrganization(organizationId);
+
     if (data.isDefault) {
       await prisma.scheduleScheme.updateMany({
         where: { organizationId },
@@ -147,6 +151,8 @@ export class ScheduleSchemeService {
     }
   ) {
     await this.getById(organizationId, id);
+
+    await OrganizationService.ensureDefaultOrganization(organizationId);
 
     if (data.isDefault) {
       await prisma.scheduleScheme.updateMany({

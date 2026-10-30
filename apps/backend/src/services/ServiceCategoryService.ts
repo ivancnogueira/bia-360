@@ -1,4 +1,5 @@
 import { prisma } from "../db/prisma";
+import { OrganizationService } from "./OrganizationService";
 
 const DEFAULT_CATEGORIES = [
   { name: "Cabelo / Cortes", color: "#3B82F6", description: "Cortes clássicos, degradê, fade e tesoura" },
@@ -25,6 +26,7 @@ export class ServiceCategoryService {
 
     if (categories.length === 0) {
       // Seed inicial transparente
+      await OrganizationService.ensureDefaultOrganization(organizationId);
       await prisma.serviceCategory.createMany({
         data: DEFAULT_CATEGORIES.map((cat) => ({
           organizationId,
@@ -62,6 +64,8 @@ export class ServiceCategoryService {
     if (!data.name || !data.name.trim()) {
       throw new Error("Nome da categoria é obrigatório.");
     }
+
+    await OrganizationService.ensureDefaultOrganization(data.organizationId);
 
     return prisma.serviceCategory.create({
       data: {

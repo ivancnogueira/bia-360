@@ -105,6 +105,52 @@ export class OrganizationService {
   }
 
   /**
+   * Garante que uma organizacao e unidade padrao existam para operacao local e testes.
+   */
+  static async ensureDefaultOrganization(id: string = "org-barone-matriz") {
+    const existing = await prisma.organization.findUnique({
+      where: { id },
+      include: { units: true },
+    });
+    if (existing) {
+      if (existing.units.length === 0) {
+        await prisma.unit.create({
+          data: {
+            id: "unit-matriz",
+            organizationId: id,
+            name: "Barone Matriz Centro",
+            timezone: "America/Sao_Paulo",
+            active: true,
+          },
+        });
+      }
+      return existing;
+    }
+
+    const org = await prisma.organization.create({
+      data: {
+        id,
+        name: "Barone Academy Matriz",
+        slug: "barone-academy-matriz",
+        email: "contato@baroneacademy.com",
+        phone: "5541999999999",
+        active: true,
+        units: {
+          create: {
+            id: "unit-matriz",
+            name: "Barone Matriz Centro",
+            timezone: "America/Sao_Paulo",
+            active: true,
+          },
+        },
+      },
+      include: { units: true },
+    });
+
+    return org;
+  }
+
+  /**
    * Desativa uma organizacao.
    */
   static async deactivate(id: string, actorId?: string) {

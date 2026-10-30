@@ -17,6 +17,7 @@ import { ScheduleExceptionService } from "./services/ScheduleExceptionService";
 import { ScheduleSchemeService } from "./services/ScheduleSchemeService";
 import { CourseService } from "./services/CourseService";
 import { ClassGroupService } from "./services/ClassGroupService";
+import { OrganizationService } from "./services/OrganizationService";
 
 dotenv.config();
 
@@ -500,6 +501,12 @@ process.on("unhandledRejection", (reason) => {
   console.error("[BIA Backend unhandledRejection]", reason);
 });
 
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`[BIA Backend] Servidor ativo ouvindo na porta ${PORT}`);
+  try {
+    await OrganizationService.ensureDefaultOrganization();
+    console.log("[BIA Backend] Organizacao padrao verificada/inicializada no PostgreSQL.");
+  } catch (err: any) {
+    console.error("[BIA Backend] Erro ao inicializar organizacao padrao:", err.message);
+  }
 });

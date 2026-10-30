@@ -12,7 +12,7 @@
     'rose-retrato.png', 'familia-ambiente.png', 'familia-ambiente-43.png',
     'rose-metafora-polvo.png', 'rose-acrobata.png', 'rose-reflexao.png',
     'rose-palestrante.png', 'bia.png', 'bia-barbeira.png', 'bia-educadora.png',
-    'tempo.png', 'qr-planos.png'
+    'tempo.png', 'qr-planos.png', 'visagismo-antes-depois.png', 'colorimetria-antes-depois.png'
   ];
   const images = new Map(artwork.map(name => {
     const img = new Image();
@@ -30,8 +30,8 @@
   function slideArtwork(slide) {
     const title = slide.dataset.title;
     if (title === 'Abertura') return 'rose-retrato.png';
-    if (title === 'Muitos papéis') return window.matchMedia('(min-width: 701px) and (max-aspect-ratio: 3/2)').matches ? 'familia-ambiente-43.png' : 'familia-ambiente.png';
-    return ({ 'Sonhos realizados': 'familia-ambiente-43.png', 'Mulher polvo': 'rose-metafora-polvo.png', 'Equilibrar': 'rose-acrobata.png', 'A virada': 'rose-reflexao.png', 'Minha escolha': 'rose-palestrante.png', 'Conheça a BIA': 'bia.png', 'BIA para barbearias': 'bia-barbeira.png', 'BIA para escolas': 'bia-educadora.png', 'Encerramento': 'qr-planos.png' })[title];
+    if (title === 'Muitos papéis' || title === 'Sonhos realizados') return window.matchMedia('(min-width: 701px) and (max-aspect-ratio: 3/2)').matches ? 'familia-ambiente-43.png' : 'familia-ambiente.png';
+    return ({ 'Mulher polvo': 'rose-metafora-polvo.png', 'Equilibrar': 'rose-acrobata.png', 'A virada': 'rose-reflexao.png', 'Não cabe tudo': 'rose-reflexao.png', 'Minha escolha': 'rose-palestrante.png', 'Conheça a BIA': 'bia.png', 'BIA para barbearias': 'bia-barbeira.png', 'BIA para escolas': 'bia-educadora.png', 'Visagismo': 'visagismo-antes-depois.png', 'Colorimetria': 'colorimetria-antes-depois.png', 'Encerramento': 'qr-planos.png' })[title];
   }
   const clamp = n => Math.max(0, Math.min(slides.length - 1, n));
   function show(n, update = true, fromGesture = false) {

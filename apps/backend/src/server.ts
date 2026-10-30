@@ -493,6 +493,13 @@ app.post("/api/v1/auth/resend-code", (req: Request, res: Response) => {
   });
 });
 
+process.on("uncaughtException", (err) => {
+  console.error("[BIA Backend uncaughtException]", err);
+});
+process.on("unhandledRejection", (reason) => {
+  console.error("[BIA Backend unhandledRejection]", reason);
+});
+
 app.listen(PORT, () => {
   console.log(`[BIA Backend] Servidor ativo ouvindo na porta ${PORT}`);
 });

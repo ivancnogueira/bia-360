@@ -11,7 +11,7 @@
     index = clamp(n);
     slides.forEach((s, i) => { s.classList.toggle('active', i === index); s.setAttribute('aria-hidden', i !== index); });
     counter.textContent = `${String(index + 1).padStart(2, '0')} / ${slides.length}`;
-    if (video && index !== 20) video.pause();
+    if (video && !slides[index].contains(video)) { video.pause(); if (document.fullscreenElement === video) document.exitFullscreen?.(); }
     if (update) history.replaceState(null, '', `#${index + 1}`);
     document.title = `${slides[index].dataset.title} | Rose Barone`;
   }
@@ -25,11 +25,11 @@
   document.querySelector('#next').addEventListener('click', () => show(index + 1));
   menuBtn.addEventListener('click', () => { menu.hidden = !menu.hidden; menuBtn.setAttribute('aria-expanded', String(!menu.hidden)); });
   document.querySelector('#closeMenu').addEventListener('click', closeMenu);
-  document.querySelectorAll('[data-go]').forEach(b => b.addEventListener('click', () => { show(+b.dataset.go); closeMenu(); }));
+  document.querySelectorAll('[data-go], [data-target]').forEach(b => b.addEventListener('click', () => { const target=b.dataset.target ? slides.findIndex(s => s.dataset.title === b.dataset.target) : Number(b.dataset.go); if(target >= 0) show(target); closeMenu(); }));
   document.querySelector('#fullscreen').addEventListener('click', () => { if (document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen?.(); });
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape') { closeMenu(); return; }
-    if (e.target.closest('video,input,textarea,select') || (e.target.closest('button') && [' ', 'Enter'].includes(e.key))) return;
+    if (e.target.closest('input,textarea,select') || document.fullscreenElement === video || (e.target.closest('button') && [' ', 'Enter'].includes(e.key))) return;
     if (['ArrowRight','ArrowDown','PageDown',' '].includes(e.key)) { e.preventDefault(); show(index + 1); }
     if (['ArrowLeft','ArrowUp','PageUp','Backspace'].includes(e.key)) { e.preventDefault(); show(index - 1); }
     if (e.key === 'Home') { e.preventDefault(); show(0); }
@@ -39,7 +39,8 @@
   let startX = 0, startY = 0;
   document.querySelector('#deck').addEventListener('touchstart', e => { startX=e.changedTouches[0].clientX; startY=e.changedTouches[0].clientY; }, {passive:true});
   document.querySelector('#deck').addEventListener('touchend', e => { if (e.target.closest('video')) return; const dx=e.changedTouches[0].clientX-startX, dy=e.changedTouches[0].clientY-startY; if (Math.abs(dx)>70 && Math.abs(dx)>Math.abs(dy)*1.4) show(index + (dx<0?1:-1)); }, {passive:true});
+  document.querySelector('#videoFull').addEventListener('click', () => { const msg=document.querySelector('#videoMessage'); if (video.readyState === 0 || video.error) { msg.textContent='Vídeo indisponível. Confira o arquivo e a conexão.'; return; } const request=video.requestFullscreen ? video.requestFullscreen() : Promise.reject(); request.catch(() => { msg.textContent='Tela cheia indisponível neste navegador. Use os controles do vídeo.'; }); video.play().catch(() => { msg.textContent='Use o botão de reprodução do vídeo.'; }); });
   video.addEventListener('loadeddata', () => video.parentElement.classList.add('ready'));
-  video.addEventListener('error', () => { video.hidden = true; }, true);
+  video.addEventListener('error', () => { video.hidden = true; document.querySelector('#videoFull').hidden = true; }, true);
   show((parseInt(location.hash.slice(1), 10) || 1) - 1, false);
 })();

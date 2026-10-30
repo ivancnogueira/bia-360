@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev -p 3010",
     "build": "next build",
-    "start": "node serve.js",
+    "start": "next dev -p 3010",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
